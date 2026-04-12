@@ -46,7 +46,7 @@ final class InitialMigration extends AbstractMigration
 
         // Insert default admin user
         // password_hash('admin123', PASSWORD_BCRYPT)
-        $this->execute("INSERT INTO users (username, password, full_name) VALUES ('admin', '$2y$10$AaGHA8acQVY3Y.krHnpZeO3SNSUNzDCk48Va68dPGYvBmuTkW.fei', 'Administrador Mas Cargo')");
+        $this->execute('INSERT INTO users (username, password, full_name) VALUES ("admin", "$2y$10$AaGHA8acQVY3Y.krHnpZeO3SNSUNzDCk48Va68dPGYvBmuTkW.fei", "Administrador Mas Cargo")');
     }
 
     public function down(): void

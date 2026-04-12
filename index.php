@@ -9,7 +9,8 @@ $router = new Router();
 // Routes definition
 $router->add('GET', '/', 'AuthController@showLogin');
 $router->add('GET', '/login', 'AuthController@showLogin');
-$router->add('POST', '/api/login', 'AuthController@login');
+$router->add('POST', '/api/login/request', 'AuthController@requestLogin');
+$router->add('POST', '/api/login/verify', 'AuthController@verifyCode');
 $router->add('GET', '/api/me', 'AuthController@me');
 $router->add('POST', '/api/logout', 'AuthController@logout');
 

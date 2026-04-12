@@ -1,44 +1,105 @@
 // main.js - Client-Side Logic for Masair Ticketing System
 
-// Login Form Handling
+// Login Form Handling (OTP Two-Step)
 if (document.getElementById('loginForm')) {
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const usernameInput = document.getElementById('username').value;
-        const passwordInput = document.getElementById('password').value;
-        const errorMsg = document.getElementById('errorMsg');
-        
-        errorMsg.style.display = 'none';
-        
+    const loginForm = document.getElementById('loginForm');
+    const emailStep = document.getElementById('emailStep');
+    const codeStep = document.getElementById('codeStep');
+    const btnRequestCode = document.getElementById('btnRequestCode');
+    const btnBackToEmail = document.getElementById('btnBackToEmail');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+
+    // Step 1: Request Code
+    btnRequestCode.addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        if (!email) {
+            showError('Por favor ingresa tu correo');
+            return;
+        }
+
+        btnRequestCode.disabled = true;
+        btnRequestCode.textContent = 'Enviando...';
+        hideMessages();
+
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch('/api/login/request', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: usernameInput,
-                    password: passwordInput
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
             });
-            
             const data = await response.json();
-            
-            if (response.ok && data.success) {
-                // Redirect to dashboard on success
-                window.location.href = '/dashboard';
+
+            if (data.success) {
+                emailStep.style.display = 'none';
+                codeStep.style.display = 'block';
+                showSuccess(data.message);
             } else {
-                // Show error message
-                errorMsg.style.display = 'block';
-                errorMsg.textContent = data.message || 'Error de autenticación';
+                showError(data.message);
             }
         } catch (err) {
-            console.error('Login error:', err);
-            errorMsg.style.display = 'block';
-            errorMsg.textContent = 'Error al conectar con el servidor';
+            showError('Error al conectar con el servidor');
+        } finally {
+            btnRequestCode.disabled = false;
+            btnRequestCode.textContent = 'Enviar Código de Acceso';
         }
     });
+
+    // Step 2: Verify Code
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const code = document.getElementById('accessCode').value;
+
+        if (!code) return;
+
+        hideMessages();
+        const btnSubmit = loginForm.querySelector('button[type="submit"]');
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'Verificando...';
+
+        try {
+            const response = await fetch('/api/login/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, code })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = '/dashboard';
+            } else {
+                showError(data.message);
+            }
+        } catch (err) {
+            showError('Error de verificación');
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Verificar e Ingresar';
+        }
+    });
+
+    // Navigation back
+    btnBackToEmail.addEventListener('click', () => {
+        codeStep.style.display = 'none';
+        emailStep.style.display = 'block';
+        hideMessages();
+    });
+
+    function showError(msg) {
+        errorMsg.textContent = msg;
+        errorMsg.style.display = 'block';
+    }
+
+    function showSuccess(msg) {
+        successMsg.textContent = msg;
+        successMsg.style.display = 'block';
+    }
+
+    function hideMessages() {
+        errorMsg.style.display = 'none';
+        successMsg.style.display = 'none';
+    }
 }
 
 // shared global logic for Masair

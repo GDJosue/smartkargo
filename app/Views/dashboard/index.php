@@ -17,8 +17,16 @@
         <div style="margin-top: 10px;"><a id="logoutBtn" class="logout-link">Cerrar Sesión</a></div>
     </div>
     
-    <div class="split-layout">
-        <!-- FORM COLUMN -->
+    <div class="tabs-container">
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-target="tab-generate">Generar Boleto</button>
+            <button class="tab-btn" data-target="tab-history" id="loadHistoryBtn">Historial de Boletos</button>
+        </div>
+
+        <!-- GENERATE TAB -->
+        <div class="tab-content active" id="tab-generate">
+            <div class="split-layout">
+                <!-- FORM COLUMN -->
         <div class="form-column">
             <div class="card form-card" style="margin: 0; max-width: 100%;">
                 <h2 style="font-size: 1.2rem; margin-bottom: 1rem;">Detalles del Vuelo</h2>
@@ -194,6 +202,32 @@ JUANA VAZQUEZ LAZARO</textarea></div>
                     <div id="canvas-qrcode" style="width: 80px; height: 80px;"></div>
                 </div>
              </div>
+        </div>
+            </div>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div class="tab-content" id="tab-history">
+            <div class="history-card">
+                <h2 style="margin-bottom: 1rem; color: var(--primary-color);">Boletos Generados</h2>
+                <div style="overflow-x: auto;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID Pase</th>
+                                <th>Fecha Creado</th>
+                                <th>Vuelo / Fecha</th>
+                                <th>Ruta</th>
+                                <th>Pasajeros</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr><td colspan="6" style="text-align:center;">Cargando historial...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
     

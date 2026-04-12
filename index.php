@@ -16,6 +16,7 @@ $router->add('POST', '/api/logout', 'AuthController@logout');
 $router->add('GET', '/dashboard', 'DashboardController@index');
 
 $router->add('POST', '/api/save-ticket', 'TicketController@save');
+$router->add('GET', '/api/tickets', 'TicketController@list');
 $router->add('GET', '/verify/{id}', 'TicketController@verify');
 
 // Dispatch request

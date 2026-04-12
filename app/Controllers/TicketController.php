@@ -53,4 +53,12 @@ class TicketController extends Controller {
         }
         $this->view('tickets/verify', ['ticket' => $ticket]);
     }
+
+    public function list() {
+        if (!isset($_SESSION['userId'])) {
+            $this->json(['success' => false, 'message' => 'No autorizado'], 401);
+        }
+        $tickets = $this->ticketModel->getAll();
+        $this->json(['success' => true, 'tickets' => $tickets]);
+    }
 }

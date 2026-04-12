@@ -21,5 +21,8 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . .
 
+# Install PHP dependencies
+RUN composer install --no-interaction --optimize-autoloader
+
 # Adjust permissions
 RUN chown -R www-data:www-data /var/www/html

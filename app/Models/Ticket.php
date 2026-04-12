@@ -49,4 +49,9 @@ class Ticket {
         $stmt->execute([$ticketId]);
         return $stmt->fetch();
     }
+
+    public function getAll() {
+        $stmt = $this->db->query("SELECT * FROM tickets ORDER BY created_at DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

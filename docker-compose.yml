@@ -10,6 +10,7 @@ services:
       DB_PASS: secret
     depends_on:
       - db
+    command: sh -c "composer install --no-interaction && apache2-foreground"
     volumes:
       - .:/var/www/html
 

@@ -1,0 +1,11 @@
+# Supernumerario .gitignore
+
+# Sensitive files
+.env
+
+# Dependencies
+vendor/
+
+# OS files
+.DS_Store
+Thumbs.db

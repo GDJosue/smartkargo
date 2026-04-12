@@ -1,0 +1,18 @@
+{
+    "name": "supernumeario/app",
+    "description": "Supernumerario Project with MVC and Migrations",
+    "type": "project",
+    "require": {
+        "php": "^8.1",
+        "robmorgan/phinx": "^0.13.4",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

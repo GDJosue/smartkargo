@@ -1,0 +1,31 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8686:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: supernumerario
+      DB_USER: root
+      DB_PASS: secret
+    depends_on:
+      - db
+    volumes:
+      - .:/var/www/html
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: supernumerario
+    # REMOVED port mapping to host to avoid conflicts.
+    # The 'app' container can still reach this via 'db:3306' internally.
+    volumes:
+      - db_data:/var/lib/mysql
+      # Auto-import schema on startup
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+
+volumes:
+  db_data:

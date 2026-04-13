@@ -17,7 +17,8 @@ class Mailer {
                 $mail->SMTPAuth   = true;
                 $mail->Username   = MAIL_USER;
                 $mail->Password   = MAIL_PASS;
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                // Port 465 requires SMTPS, 587 requires STARTTLS
+                $mail->SMTPSecure = (MAIL_PORT == 465) ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port       = MAIL_PORT;
             } else {
                 $mail->isMail();

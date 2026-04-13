@@ -101,8 +101,11 @@ JUANA VAZQUEZ LAZARO</textarea></div>
         <div class="preview-column">
              <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: #333;">Previsualización en Vivo</h2>
              <div class="ticket-canvas">
-                <div class="ticket-dates">
-                    <span id="prev-date-out">10 ABR 2026</span> &#9654; <span id="prev-date-return">15 ABR 2026</span> DESTINO <span id="prev-dest-title">CANCÚN, MÉXICO</span>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div class="ticket-dates">
+                        <span id="prev-date-out">10 ABR 2026</span> &#9654; <span id="prev-date-return">15 ABR 2026</span> DESTINO <span id="prev-dest-title">CANCÚN, MÉXICO</span>
+                    </div>
+                    <div id="canvas-qrcode" style="width: 80px; height: 80px;"></div>
                 </div>
                 <hr class="ticket-hr">
                 
@@ -199,7 +202,6 @@ JUANA VAZQUEZ LAZARO</textarea></div>
                         ID de Pase <strong id="prev-ticket-id" style="color:#000;">[PENDIENTE]</strong><br>
                         Documento oficial Mas Cargo
                     </div>
-                    <div id="canvas-qrcode" style="width: 80px; height: 80px;"></div>
                 </div>
              </div>
         </div>

@@ -135,7 +135,6 @@
                                 <span id="prev-date-out"></span> &#9654; <span id="prev-date-return"></span> APROBADO
                                 POR <span id="prev-approved"></span>
                             </div>
-                            <div id="canvas-qrcode" style="width: 80px; height: 80px;"></div>
                         </div>
                         <hr class="ticket-hr">
 
@@ -165,7 +164,6 @@
                             <!-- Left gray box -->
                             <div class="tbox-gray">
                                 <div class="tbox-header">MAS CARGO</div>
-                                <div class="tbox-flight" id="prev-transport">MAA</div>
 
                                 <div class="tlabel">Prioridad:</div>
                                 <div class="tval" id="prev-priority"></div>
@@ -199,6 +197,9 @@
                             </div>
                             <!-- Right white box -->
                             <div class="tbox-right">
+                                <div class="tlabel">Transportadora:</div>
+                                <div class="tval mb-15" id="prev-transport">MAA</div>
+
                                 <div class="tlabel">Avión:</div>
                                 <div class="tval mb-15" id="prev-aircraft"></div>
 
@@ -373,19 +374,7 @@
                     // Show ID on canvas
                     document.getElementById('prev-ticket-id').textContent = result.ticketId;
 
-                    // Render QR Code
-                    const qrContainer = document.getElementById('canvas-qrcode');
-                    qrContainer.innerHTML = '';
-                    new QRCode(qrContainer, {
-                        text: result.verifyUrl,
-                        width: 80,
-                        height: 80,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.L
-                    });
-
-                    // Allow more time for QR and layout to settle
+                    // Allow more time for layout to settle
                     setTimeout(() => {
                         const element = document.querySelector('.ticket-canvas');
                         const opt = {

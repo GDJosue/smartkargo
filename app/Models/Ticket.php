@@ -14,31 +14,28 @@ class Ticket {
 
     public function create($data) {
         $stmt = $this->db->prepare("INSERT INTO tickets (
-            ticket_id, date_out, date_return, main_dest, passengers, res_code, 
-            dep_day, flight_num, duration, cabin, status, orig_code, orig_city, 
-            dest_code, dest_city, orig_time, orig_term, dest_time, dest_term, aircraft, miles
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            ticket_id, date_out, date_return, approved_by, passengers, guide_code, 
+            area, transportadora, priority, status, orig_code, orig_city, 
+            dest_code, dest_city, time, flight, aircraft, miles
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         return $stmt->execute([
             $data['ticket_id'],
             $data['dateOut'] ?? '',
             $data['dateReturn'] ?? '',
-            $data['mainDest'] ?? '',
+            $data['approvedBy'] ?? '',
             json_encode($data['passengers'] ?? []),
-            $data['resCode'] ?? '',
-            $data['depDay'] ?? '',
-            $data['flightNum'] ?? '',
-            $data['duration'] ?? '',
-            $data['cabin'] ?? '',
+            $data['guideCode'] ?? '',
+            $data['area'] ?? '',
+            $data['transportadora'] ?? '',
+            $data['priority'] ?? '',
             $data['status'] ?? '',
             $data['origCode'] ?? '',
             $data['origCity'] ?? '',
             $data['destCode'] ?? '',
             $data['destCity'] ?? '',
-            $data['origTime'] ?? '',
-            $data['origTerm'] ?? '',
-            $data['destTime'] ?? '',
-            $data['destTerm'] ?? '',
+            $data['time'] ?? '',
+            $data['flight'] ?? '',
             $data['aircraft'] ?? '',
             $data['miles'] ?? ''
         ]);

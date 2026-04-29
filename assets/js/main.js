@@ -147,7 +147,7 @@ async function loadHistory() {
                 tr.innerHTML = `
                     <td><strong>${ticket.ticket_id}</strong></td>
                     <td>${new Date(ticket.created_at).toLocaleDateString()}</td>
-                    <td><span class="badge">${ticket.flight_num}</span><br><small>${ticket.dep_day}</small></td>
+                    <td><span class="badge">${ticket.transportadora}</span><br><small>${ticket.area}</small></td>
                     <td>${ticket.orig_code} &rarr; ${ticket.dest_code}</td>
                     <td><small>${paxStr}</small></td>
                     <td>
@@ -169,16 +169,15 @@ window.loadTicketToForm = function(ticket) {
     // Fill the inputs
     document.getElementById('f-date1').value = ticket.date_out || '';
     document.getElementById('f-date2').value = ticket.date_return || '';
-    document.getElementById('f-dest').value = ticket.main_dest || '';
+    document.getElementById('f-approved-by').value = ticket.approved_by || '';
     
     const pax = JSON.parse(ticket.passengers || '[]');
     document.getElementById('f-passengers').value = Array.isArray(pax) ? pax.join('\\n') : pax;
     
-    document.getElementById('f-res').value = ticket.res_code || '';
-    document.getElementById('f-day').value = ticket.dep_day || '';
-    document.getElementById('f-flight').value = ticket.flight_num || '';
-    document.getElementById('f-duration').value = ticket.duration || '';
-    document.getElementById('f-cabin').value = ticket.cabin || '';
+    document.getElementById('f-guide').value = ticket.guide_code || '';
+    document.getElementById('f-area').value = ticket.area || '';
+    document.getElementById('f-transport').value = ticket.transportadora || '';
+    document.getElementById('f-priority').value = ticket.priority || '';
     document.getElementById('f-status').value = ticket.status || '';
     
     document.getElementById('f-orig-code').value = ticket.orig_code || '';
@@ -186,19 +185,17 @@ window.loadTicketToForm = function(ticket) {
     document.getElementById('f-dest-code').value = ticket.dest_code || '';
     document.getElementById('f-dest-city').value = ticket.dest_city || '';
     
-    document.getElementById('f-orig-time').value = ticket.orig_time || '';
-    document.getElementById('f-orig-term').value = ticket.orig_term || '';
-    document.getElementById('f-dest-time').value = ticket.dest_time || '';
-    document.getElementById('f-dest-term').value = ticket.dest_term || '';
+    document.getElementById('f-time').value = ticket.time || '';
+    document.getElementById('f-flight').value = ticket.flight || '';
     
     document.getElementById('f-aircraft').value = ticket.aircraft || '';
     document.getElementById('f-miles').value = ticket.miles || '';
     
     // Trigger input events to update the live preview
     const inputs = [
-        'f-date1', 'f-date2', 'f-dest', 'f-res', 'f-day', 'f-flight', 'f-duration', 
-        'f-cabin', 'f-status', 'f-orig-code', 'f-orig-city', 'f-dest-code', 
-        'f-dest-city', 'f-orig-time', 'f-orig-term', 'f-dest-time', 'f-dest-term', 
+        'f-date1', 'f-date2', 'f-approved-by', 'f-guide', 'f-area', 'f-transport', 'f-priority', 
+        'f-status', 'f-orig-code', 'f-orig-city', 'f-dest-code', 
+        'f-dest-city', 'f-time', 'f-flight', 
         'f-aircraft', 'f-miles', 'f-passengers'
     ];
     

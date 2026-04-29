@@ -28,9 +28,9 @@
             <div class="valid">✅ PASE VÁLIDO</div>
             <div class="detail"><strong>ID de Autorización</strong><span><?php echo htmlspecialchars($ticket['ticket_id'] ?? ''); ?></span></div>
             <div class="detail"><strong>Pasajeros</strong><span><?php echo $passengersHtml; ?></span></div>
-            <div class="detail"><strong>Vuelo</strong><span><?php echo htmlspecialchars($ticket['flight_num'] ?? ''); ?></span></div>
+            <div class="detail"><strong>Transportadora</strong><span><?php echo htmlspecialchars($ticket['transportadora'] ?? ''); ?></span></div>
             <div class="detail"><strong>Ruta</strong><span><?php echo htmlspecialchars($ticket['orig_code'] ?? ''); ?> ✈ <?php echo htmlspecialchars($ticket['dest_code'] ?? ''); ?></span></div>
-            <div class="detail"><strong>Fecha de Vuelo</strong><span><?php echo htmlspecialchars($ticket['dep_day'] ?? ''); ?></span></div>
+            <div class="detail"><strong>Área o departamento</strong><span><?php echo htmlspecialchars($ticket['area'] ?? ''); ?></span></div>
         <?php endif; ?>
     </div>
 </body>

@@ -20,6 +20,12 @@ $router->add('POST', '/api/save-ticket', 'TicketController@save');
 $router->add('GET', '/api/tickets', 'TicketController@list');
 $router->add('GET', '/verify/{id}', 'TicketController@verify');
 
+// User Management Routes
+$router->add('GET', '/api/users', 'UserController@list');
+$router->add('POST', '/api/users', 'UserController@create');
+$router->add('DELETE', '/api/users/{id}', 'UserController@delete');
+$router->add('PUT', '/api/users/{id}/admin', 'UserController@toggleAdmin');
+
 // Dispatch request
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];

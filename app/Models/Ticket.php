@@ -16,8 +16,8 @@ class Ticket {
         $stmt = $this->db->prepare("INSERT INTO tickets (
             ticket_id, date_out, date_return, approved_by, passengers, guide_code, 
             area, transportadora, priority, status, orig_code, orig_city, 
-            dest_code, dest_city, time, flight, aircraft, miles
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            dest_code, dest_city, time, flight, aircraft, miles, created_by_name, created_at_cdmx, passenger_type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         return $stmt->execute([
             $data['ticket_id'],
@@ -37,7 +37,10 @@ class Ticket {
             $data['time'] ?? '',
             $data['flight'] ?? '',
             $data['aircraft'] ?? '',
-            $data['miles'] ?? ''
+            $data['miles'] ?? '',
+            $data['created_by_name'] ?? '',
+            $data['created_at_cdmx'] ?? '',
+            $data['passengerType'] ?? ''
         ]);
     }
 

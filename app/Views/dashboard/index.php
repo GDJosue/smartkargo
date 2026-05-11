@@ -23,6 +23,7 @@
         <div class="tabs-nav">
             <button class="tab-btn active" data-target="tab-generate">Generar Boleto</button>
             <button class="tab-btn" data-target="tab-history" id="loadHistoryBtn">Historial de Boletos</button>
+            <button class="tab-btn admin-only" data-target="tab-users" id="loadUsersBtn" style="display: none;">Gestión de Usuarios</button>
         </div>
 
         <!-- GENERATE TAB -->
@@ -61,6 +62,21 @@
                             <div class="form-row">
                                 <div class="form-group"><label>Transportadora</label><input type="text" id="f-transport"
                                         value="MAA" required></div>
+                                <div class="form-group">
+                                    <label>Tipo de pasajero</label>
+                                    <select id="f-passenger-type" required>
+                                        <option value="" disabled selected>Seleccionar</option>
+                                        <option value="Asistentes de carga">Asistentes de carga</option>
+                                        <option value="Asuntos de la empresa">Asuntos de la empresa</option>
+                                        <option value="Clientes">Clientes</option>
+                                        <option value="Empleado fuera de servicio">Empleado fuera de servicio</option>
+                                        <option value="Dependiente del empleado">Dependiente del empleado</option>
+                                        <option value="Tripulación adicional">Tripulación adicional</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
                                 <div class="form-group">
                                     <label>Prioridad</label>
                                     <select id="f-priority" required>
@@ -165,6 +181,9 @@
                             <div class="tbox-gray">
                                 <div class="tbox-header">MAS CARGO</div>
 
+                                <div class="tlabel">Tipo de pasajero:</div>
+                                <div class="tval" id="prev-passenger-type" style="margin-bottom: 8px;"></div>
+
                                 <div class="tlabel">Prioridad:</div>
                                 <div class="tval" id="prev-priority"></div>
 
@@ -224,6 +243,8 @@
                             style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px;">
                             <div style="font-size: 0.75rem; color: #666; font-family: monospace;">
                                 ID de Pase <strong id="prev-ticket-id" style="color:#000;">[PENDIENTE]</strong><br>
+                                Generado por: <strong id="prev-created-by" style="color:#000;">[PENDIENTE]</strong><br>
+                                Fecha/Hora (CDMX): <strong id="prev-created-at" style="color:#000;">[PENDIENTE]</strong><br>
                                 Documento oficial Mas Cargo
                             </div>
                         </div>
@@ -241,7 +262,8 @@
                         <thead>
                             <tr>
                                 <th>ID Pase</th>
-                                <th>Fecha Creado</th>
+                                <th>Fecha Creado (CDMX)</th>
+                                <th>Generado Por</th>
                                 <th>Vuelo / Fecha</th>
                                 <th>Ruta</th>
                                 <th>Pasajeros</th>
@@ -250,14 +272,77 @@
                         </thead>
                         <tbody id="historyTableBody">
                             <tr>
-                                <td colspan="6" style="text-align:center;">Cargando historial...</td>
+                                <td colspan="7" style="text-align:center;">Cargando historial...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+
+        <!-- USERS TAB (ADMIN ONLY) -->
+        <div class="tab-content" id="tab-users">
+            <div class="split-layout">
+                <!-- FORM COLUMN -->
+                <div class="form-column">
+                    <div class="card form-card" style="margin: 0; max-width: 100%;">
+                        <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary-color);">Crear Nuevo Usuario</h2>
+                        <form id="createUserForm">
+                            <div class="form-group"><label>Nombre Completo</label><input type="text" id="u-name" required></div>
+                            <div class="form-group"><label>Nombre de Usuario</label><input type="text" id="u-username" required></div>
+                            <div class="form-group"><label>Correo Electrónico</label><input type="email" id="u-email" required></div>
+                            <button type="submit" class="btn" style="margin-top: 1rem;">Crear Usuario</button>
+                            <div id="createUserMsg" style="margin-top: 10px;"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TABLE COLUMN -->
+                <div class="preview-column">
+                    <div class="history-card" style="margin: 0;">
+                        <h2 style="margin-bottom: 1rem; color: var(--primary-color);">Usuarios Registrados</h2>
+                        <div style="overflow-x: auto;">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Usuario / Correo</th>
+                                        <th>Rol</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr>
+                                        <td colspan="5" style="text-align:center;">Cargando usuarios...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+        <!-- CUSTOM MODAL -->
+        <div id="paymentModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+            <div class="modal-content" style="background: white; padding: 2rem; border-radius: 8px; max-width: 400px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Confirma que el pago aduanal se ha realizado</h3>
+                <div style="margin-bottom: 1.5rem; display: flex; justify-content: center; gap: 2rem;">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" name="paymentStatus" value="pagado" checked> Pagado
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" name="paymentStatus" value="no"> No
+                    </label>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button type="button" id="btnCancelPayment" class="btn" style="background: #ccc; color: #333; flex: 1;">Cancelar</button>
+                    <button type="button" id="btnConfirmPayment" class="btn" style="flex: 1;">Confirmar</button>
+                </div>
+            </div>
+        </div>
 
     <script src="/assets/js/main.js"></script>
     <script>
@@ -268,7 +353,10 @@
                 window.location.href = '/login';
             } else {
                 const data = await res.json();
-                document.getElementById('userBadge').textContent = 'Bienvenido: ' + data.name;
+                document.getElementById('userBadge').textContent = 'Bienvenido: ' + data.name + (data.isAdmin ? ' (Admin)' : '');
+                if (data.isAdmin) {
+                    document.getElementById('loadUsersBtn').style.display = 'inline-block';
+                }
             }
         });
 
@@ -294,7 +382,8 @@
             { id: 'f-time', prev: 'prev-time' },
             { id: 'f-flight', prev: 'prev-flight' },
             { id: 'f-aircraft', prev: 'prev-aircraft' },
-            { id: 'f-miles', prev: 'prev-miles' }
+            { id: 'f-miles', prev: 'prev-miles' },
+            { id: 'f-passenger-type', prev: 'prev-passenger-type' }
         ];
 
         inputs.forEach(mapping => {
@@ -329,8 +418,28 @@
         updatePassengers(); // init
 
         // SUBMIT FORM LOGIC
-        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+        document.getElementById('ticketForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            // Mostrar modal
+            document.getElementById('paymentModal').style.display = 'flex';
+        });
+
+        // Cancelar Modal
+        document.getElementById('btnCancelPayment').addEventListener('click', () => {
+            document.getElementById('paymentModal').style.display = 'none';
+        });
+
+        // Confirmar Modal
+        document.getElementById('btnConfirmPayment').addEventListener('click', async () => {
+            const status = document.querySelector('input[name="paymentStatus"]:checked').value;
+            
+            // Ocultar modal
+            document.getElementById('paymentModal').style.display = 'none';
+            
+            if (status === 'no') {
+                return; // Detener flujo, no generar boleto
+            }
+
             const generateBtn = document.querySelector('button[type="submit"]');
             const resultDiv = document.getElementById('ticketResult');
             const errorDiv = document.getElementById('generateError');
@@ -349,6 +458,7 @@
                 guideCode: document.getElementById('f-guide').value,
                 area: document.getElementById('f-area').value,
                 transportadora: document.getElementById('f-transport').value,
+                passengerType: document.getElementById('f-passenger-type').value,
                 priority: document.getElementById('f-priority').value,
                 status: document.getElementById('f-status').value,
                 origCode: document.getElementById('f-orig-code').value,
@@ -371,8 +481,10 @@
                 const result = await response.json();
                 if (result.success) {
 
-                    // Show ID on canvas
+                    // Show ID and Audit fields on canvas
                     document.getElementById('prev-ticket-id').textContent = result.ticketId;
+                    document.getElementById('prev-created-by').textContent = result.created_by_name;
+                    document.getElementById('prev-created-at').textContent = result.created_at_cdmx;
 
                     // Allow more time for layout to settle
                     setTimeout(() => {

@@ -30,6 +30,10 @@ class TicketController extends Controller {
         }
         $data['ticket_id'] = "MAS-" . $randomStr;
 
+        $dt = new \DateTime("now", new \DateTimeZone('America/Mexico_City'));
+        $data['created_at_cdmx'] = $dt->format('Y-m-d H:i:s');
+        $data['created_by_name'] = $_SESSION['userName'] ?? 'Desconocido';
+
         if ($this->ticketModel->create($data)) {
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
             $host = $_SERVER['HTTP_HOST'];
@@ -38,7 +42,9 @@ class TicketController extends Controller {
             $this->json([
                 'success' => true, 
                 'ticketId' => $data['ticket_id'], 
-                'verifyUrl' => $verifyUrl
+                'verifyUrl' => $verifyUrl,
+                'created_at_cdmx' => $data['created_at_cdmx'],
+                'created_by_name' => $data['created_by_name']
             ]);
         } else {
             $this->json(['success' => false, 'message' => 'Error al guardar el boleto'], 500);

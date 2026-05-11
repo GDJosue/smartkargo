@@ -54,4 +54,35 @@ class User {
 
         return false;
     }
+
+    public function getAll() {
+        $stmt = $this->db->query("SELECT id, username, email, full_name, is_admin FROM users ORDER BY id ASC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function create($data) {
+        // If it's the first user, make them admin
+        $stmt = $this->db->query("SELECT COUNT(*) as count FROM users");
+        $res = $stmt->fetch();
+        $isAdmin = ($res['count'] == 0) ? 1 : 0;
+
+        $stmt = $this->db->prepare("INSERT INTO users (username, email, full_name, is_admin) VALUES (?, ?, ?, ?)");
+        return $stmt->execute([
+            $data['username'] ?? '',
+            $data['email'] ?? '',
+            $data['full_name'] ?? '',
+            $isAdmin
+        ]);
+    }
+
+    public function delete($id) {
+        // Don't delete if it's the only admin? Let's just do a simple delete
+        $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+
+    public function toggleAdmin($id, $isAdmin) {
+        $stmt = $this->db->prepare("UPDATE users SET is_admin = ? WHERE id = ?");
+        return $stmt->execute([$isAdmin ? 1 : 0, $id]);
+    }
 }

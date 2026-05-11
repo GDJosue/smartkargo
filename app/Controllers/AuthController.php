@@ -84,7 +84,8 @@ class AuthController extends Controller {
         if ($user && $this->userModel->verifyLoginCode($user['id'], $code)) {
             $_SESSION['userId'] = $user['id'];
             $_SESSION['userName'] = $user['full_name'];
-            $this->json(['success' => true, 'message' => 'Login exitoso', 'name' => $user['full_name']]);
+            $_SESSION['isAdmin'] = (bool)$user['is_admin'];
+            $this->json(['success' => true, 'message' => 'Login exitoso', 'name' => $user['full_name'], 'isAdmin' => $_SESSION['isAdmin']]);
         } else {
             $this->json(['success' => false, 'message' => 'Código incorrecto o expirado'], 401);
         }
@@ -92,7 +93,7 @@ class AuthController extends Controller {
 
     public function me() {
         if (isset($_SESSION['userId'])) {
-            $this->json(['success' => true, 'name' => $_SESSION['userName']]);
+            $this->json(['success' => true, 'name' => $_SESSION['userName'], 'isAdmin' => $_SESSION['isAdmin'] ?? false]);
         } else {
             $this->json(['success' => false], 401);
         }

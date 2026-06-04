@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mas Cargo | Login</title>
+    <meta name="description" content="Iniciar sesión — Sistema de Boletos Mas Cargo Airlines">
+    <link rel="icon" href="/assets/img/cropped-site_logo-32x32.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body>
+<body class="login-body">
     <div class="bg-blobs">
         <div class="blob blob1"></div>
         <div class="blob blob2"></div>
@@ -14,8 +19,8 @@
     
     <div class="login-container">
         <div class="card" id="loginCard">
-            <div class="logo-container" style="text-align: center; margin-bottom: 1rem;">
-                <img src="/assets/img/logo.png" alt="Mas Cargo Logo" style="max-width: 140px; display: block; margin: 0 auto;">
+            <div class="logo-container">
+                <img src="/assets/img/logo.png" alt="Mas Cargo Logo">
             </div>
             <p class="subtitle">Acceso por Código de Seguridad</p>
             
@@ -27,7 +32,7 @@
                         <input type="email" id="email" placeholder="usuario@mascargo.com" required>
                     </div>
                     <button type="button" id="btnRequestCode" class="btn">Enviar Código de Acceso</button>
-                    <p style="font-size: 0.8rem; color: #888; margin-top: 1rem; text-align: center;">Introduzca el correo registrado para recibir su clave temporal.</p>
+                    <p class="login-hint">Introduzca el correo registrado para recibir su clave temporal.</p>
                 </div>
 
                 <!-- Paso 2: Código (Oculto inicialmente) -->
@@ -37,11 +42,11 @@
                         <input type="text" id="accessCode" placeholder="000000" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 10px;">
                     </div>
                     <button type="submit" class="btn">Verificar e Ingresar</button>
-                    <button type="button" id="btnBackToEmail" style="background: none; border: none; color: var(--primary-color); cursor: pointer; display: block; margin: 1rem auto; font-size: 0.9rem;">Volver a ingresar correo</button>
+                    <button type="button" id="btnBackToEmail" class="btn-back">Volver a ingresar correo</button>
                 </div>
                 
                 <div id="errorMsg" class="error-msg"></div>
-                <div id="successMsg" style="color: green; font-size: 0.85rem; margin-top: 1rem; text-align: center; display: none;"></div>
+                <div id="successMsg" class="success-msg"></div>
             </form>
         </div>
     </div>

@@ -16,7 +16,7 @@ final class UpdateAuthSystem extends AbstractMigration
 
         // Create login_codes table
         $this->table('login_codes')
-             ->addColumn('user_id', 'integer', ['signed' => false])
+             ->addColumn('user_id', 'integer', ['signed' => true])
              ->addColumn('code', 'string', ['limit' => 6])
              ->addColumn('expires_at', 'datetime')
              ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])

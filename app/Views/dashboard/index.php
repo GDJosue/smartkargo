@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -20,62 +21,166 @@
     <!-- ── Dashboard Header ── -->
     <header class="dashboard-header">
         <img src="/assets/img/logo.png" alt="Mas Cargo Logo">
-        <h1>Generador de Boletos Oficiales</h1>
+        <h1 data-i18n="title">Generador de Boletos Oficiales</h1>
         <div class="dashboard-header-actions">
+            <button id="langToggle" class="btn btn-sm btn-secondary" style="margin-right:15px;">EN / <strong>ES</strong></button>
             <div class="user-badge" id="userBadge">Cargando...</div>
-            <a id="logoutBtn" class="logout-link">Cerrar Sesión</a>
+            <a id="logoutBtn" class="logout-link" data-i18n="logout">Cerrar Sesión</a>
         </div>
     </header>
 
     <!-- ── Tab Navigation ── -->
     <div class="tabs-container">
         <nav class="tabs-nav">
-            <button class="tab-btn active" data-target="tab-generate">Generar Boleto</button>
-            <button class="tab-btn" data-target="tab-history" id="loadHistoryBtn">Historial de Boletos</button>
-            <button class="tab-btn admin-only" data-target="tab-users" id="loadUsersBtn" style="display: none;">Gestión de Usuarios</button>
+            <button class="tab-btn active" data-target="tab-dashboard" id="tabDashboardBtn" data-i18n="tab_dashboard">Dashboard</button>
+            <button class="tab-btn" data-target="tab-generate" data-i18n="tab_generate">Generar Boleto</button>
+            <button class="tab-btn" data-target="tab-history" id="loadHistoryBtn" data-i18n="tab_history">Historial de Boletos</button>
+            <button class="tab-btn admin-only" data-target="tab-users" id="loadUsersBtn" style="display: none;" data-i18n="tab_users">Gestión de Usuarios</button>
         </nav>
 
+        <!-- ══════════ DASHBOARD TAB ══════════ -->
+        <div class="tab-content active" id="tab-dashboard">
+            <!-- KPI Cards Grid -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎫</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label" data-i18n="kpi_total_tickets">Total Boletos Emitidos</div>
+                        <div class="kpi-value" id="kpi-total-tickets">0</div>
+                        <div class="kpi-subtext" data-i18n="kpi_total_tickets_sub">Histórico acumulado</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label" data-i18n="kpi_today_tickets">Boletos de Hoy</div>
+                        <div class="kpi-value" id="kpi-today-tickets">0</div>
+                        <div class="kpi-subtext" data-i18n="kpi_today_tickets_sub">Emitidos en CDMX</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">👥</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label" data-i18n="kpi_active_users">Operadores Activos</div>
+                        <div class="kpi-value" id="kpi-active-users">0</div>
+                        <div class="kpi-subtext" data-i18n="kpi_active_users_sub">Usuarios con emisión</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🖥️</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label" data-i18n="kpi_system_status">Estado del Sistema</div>
+                        <div class="kpi-value status-online">
+                            <span class="status-indicator"></span> ONLINE
+                        </div>
+                        <div class="kpi-subtext" id="kpi-clock">CDMX --:--:--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Analytics Layout -->
+            <div class="dashboard-layout">
+                <!-- Left Column: Recent Activity -->
+                <div class="dashboard-col dashboard-activity">
+                    <div class="card" style="margin: 0; max-width: 100%; height: 100%;">
+                        <div class="card-header-flex">
+                            <h2 data-i18n="dash_recent_activity">🔄 Actividad Reciente</h2>
+                            <span class="badge badge-live" data-i18n="badge_live">En Vivo</span>
+                        </div>
+                        <div class="activity-feed-container">
+                            <table class="history-table recent-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="th_id">ID Pase</th>
+                                        <th data-i18n="th_pax">Pasajero</th>
+                                        <th data-i18n="th_flight">Vuelo</th>
+                                        <th data-i18n="th_route">Ruta</th>
+                                        <th data-i18n="th_action">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentActivityBody">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center;" data-i18n="msg_loading_act">Cargando actividad...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Charts -->
+                <div class="dashboard-col dashboard-charts">
+                    <div class="card" style="margin: 0; max-width: 100%; height: 100%;">
+                        <h2 data-i18n="dash_analytics">📊 Analítica Operativa</h2>
+                        <div class="charts-grid">
+                            <div class="chart-container">
+                                <h3 data-i18n="chart_carrier_dist" style="margin-bottom:10px;">Distribución por Aerolínea (Carrier)</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="chartCarrier"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <h3 data-i18n="chart_pax_dist" style="margin-bottom:10px;">Emisiones por Tipo de Pasajero</h3>
+                                <div class="chart-wrapper">
+                                    <canvas id="chartPaxType"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ══════════ GENERATE TAB ══════════ -->
-        <div class="tab-content active" id="tab-generate">
+        <div class="tab-content" id="tab-generate">
             <div class="split-layout">
 
                 <!-- ── FORM COLUMN ── -->
                 <div class="form-column">
                     <div class="card form-card" style="margin: 0; max-width: 100%;">
-                        <h2>✈️ Detalles del Vuelo</h2>
+                        <h2 data-i18n="flight_details_title">✈️ Detalles del Vuelo</h2>
                         <form id="ticketForm">
-
-                            <!-- Section: Dates & Approval -->
-                            <fieldset class="form-section">
-                                <div class="form-section-title">
-                                    <span class="section-icon">📅</span>
-                                    <span>Fechas y Aprobación</span>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="f-date1">Fecha Salida</label>
-                                        <input type="text" id="f-date1" value="" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="f-date2">Fecha Llegada</label>
-                                        <input type="text" id="f-date2" value="" required>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="f-approved-by">Aprobado por</label>
-                                    <input type="text" id="f-approved-by" value="" required>
-                                </div>
-                            </fieldset>
 
                             <!-- Section: Passengers -->
                             <fieldset class="form-section">
                                 <div class="form-section-title">
                                     <span class="section-icon">👥</span>
-                                    <span>Pasajeros</span>
+                                    <span data-i18n="sec_passengers">Pasajero</span>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="f-last-name" data-i18n="lbl_last_name">Apellidos (Last Name)</label>
+                                        <input type="text" id="f-last-name" value="" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="f-first-name" data-i18n="lbl_first_name">Nombre (First/Given Name)</label>
+                                        <input type="text" id="f-first-name" value="" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="f-req-by" data-i18n="lbl_requested_by">Solicitado por (Requested By)</label>
+                                        <input type="text" id="f-req-by" value="" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="f-area" data-i18n="lbl_title_dept">Título / Dept (Title/Dept)</label>
+                                        <input type="text" id="f-area" value="" required>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="f-passengers">Nombres de Pasajeros (Separados por renglón)</label>
-                                    <textarea id="f-passengers" rows="3" required></textarea>
+                                    <label for="f-approved-by" data-i18n="lbl_approved_by">Aprobado por (Approved By)</label>
+                                    <input type="text" id="f-approved-by" value="" required>
+                                </div>
+                                <div class="form-row" style="align-items: center;">
+                                    <div class="form-group" style="flex: 1;">
+                                        <label for="f-signature" data-i18n="lbl_signature">Firma (Signature)</label>
+                                        <input type="text" id="f-signature" value="" placeholder="Dejar en blanco si es ON FILE">
+                                    </div>
+                                    <div class="form-group" style="flex: 0 0 auto; margin-top: 1.5rem;">
+                                        <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                                            <input type="checkbox" id="f-on-file" style="width:auto;"> <span data-i18n="lbl_on_file">ON FILE</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </fieldset>
 
@@ -83,57 +188,24 @@
                             <fieldset class="form-section">
                                 <div class="form-section-title">
                                     <span class="section-icon">⚙️</span>
-                                    <span>Detalles Operativos</span>
+                                    <span data-i18n="sec_operations">Detalles Operativos</span>
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="f-guide">Código de guía</label>
-                                        <input type="text" id="f-guide" value="" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="f-area">Área o departamento</label>
-                                        <input type="text" id="f-area" value="" required>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="f-passenger-type" data-i18n="lbl_pax_type">Tipo de pasajero</label>
+                                    <select id="f-passenger-type" required>
+                                        <option value="" disabled selected data-i18n="opt_select">Seleccionar</option>
+                                        <option value="cb-cargo" data-i18n="opt_cargo">Cargo Attendants</option>
+                                        <option value="cb-company" data-i18n="opt_company">Company Business</option>
+                                        <option value="cb-customers" data-i18n="opt_customers">Customers</option>
+                                        <option value="cb-offduty" data-i18n="opt_offduty">Employee off Duty</option>
+                                        <option value="cb-dependant" data-i18n="opt_dependant">Employee's Dependant</option>
+                                        <option value="cb-extracrew" data-i18n="opt_extracrew">Extra Crew</option>
+                                        <option value="cb-others" data-i18n="opt_others">Others</option>
+                                    </select>
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="f-transport">Transportadora</label>
-                                        <input type="text" id="f-transport" value="MAA" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="f-passenger-type">Tipo de pasajero</label>
-                                        <select id="f-passenger-type" required>
-                                            <option value="" disabled selected>Seleccionar</option>
-                                            <option value="Asistentes de carga">Asistentes de carga</option>
-                                            <option value="Asuntos de la empresa">Asuntos de la empresa</option>
-                                            <option value="Clientes">Clientes</option>
-                                            <option value="Empleado fuera de servicio">Empleado fuera de servicio</option>
-                                            <option value="Dependiente del empleado">Dependiente del empleado</option>
-                                            <option value="Tripulación adicional">Tripulación adicional</option>
-                                            <option value="Otros">Otros</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="f-priority">Prioridad</label>
-                                        <select id="f-priority" required>
-                                            <option value="" disabled selected>Seleccionar</option>
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                            <option value="4">4</option>
-                                            <option value="5">5</option>
-                                            <option value="6">6</option>
-                                            <option value="7">7</option>
-                                            <option value="8">8</option>
-                                            <option value="9">9</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="f-status">Estado</label>
-                                        <input type="text" id="f-status" value="" required>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="f-priority" data-i18n="lbl_priority">Prioridad</label>
+                                    <input type="text" id="f-priority" value="" maxlength="2" style="text-align: center; font-size:1.2rem;" required>
                                 </div>
                             </fieldset>
 
@@ -141,48 +213,104 @@
                             <fieldset class="form-section">
                                 <div class="form-section-title">
                                     <span class="section-icon">🗺️</span>
-                                    <span>Ruta</span>
+                                    <span data-i18n="sec_route">Rutas (Vuelos)</span>
+                                </div>
+
+                                <!-- Presets and Toggle -->
+                                <div class="quick-routes-container">
+                                    <span class="presets-lbl" data-i18n="lbl_quick_presets">Rutas Rápidas:</span>
+                                    <div class="quick-routes-buttons">
+                                        <button type="button" class="btn-preset" data-carrier="MAA" data-flight="101" data-from="MEX" data-to="LAX" data-time="08:30">MEX-LAX</button>
+                                        <button type="button" class="btn-preset" data-carrier="MAA" data-flight="202" data-from="MEX" data-to="MIA" data-time="14:15">MEX-MIA</button>
+                                        <button type="button" class="btn-preset" data-carrier="MAA" data-flight="303" data-from="MEX" data-to="CUN" data-time="20:00">MEX-CUN</button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group trip-type-group">
+                                    <label data-i18n="lbl_trip_type">Tipo de Viaje</label>
+                                    <div class="trip-type-toggle">
+                                        <label class="toggle-option active" id="lbl-trip-one-way">
+                                            <input type="radio" name="tripType" value="one-way" checked style="display:none;">
+                                            <span data-i18n="trip_one_way">Sencillo</span>
+                                        </label>
+                                        <label class="toggle-option" id="lbl-trip-round">
+                                            <input type="radio" name="tripType" value="round-trip" style="display:none;">
+                                            <span data-i18n="trip_round">Redondo</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <h3 style="margin-bottom:10px; font-size:0.85rem;" data-i18n="lbl_flight1">Vuelo 1 (FLT 1)</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="f-carrier1" data-i18n="lbl_carrier">Carrier</label>
+                                        <input type="text" id="f-carrier1" value="MAA" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="f-flight1" data-i18n="lbl_flight_num">Vuelo</label>
+                                        <input type="text" id="f-flight1" value="" required>
+                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="f-orig-code">Origen (Código)</label>
-                                        <input type="text" id="f-orig-code" value="" required>
-                                        <label for="f-orig-city" class="mt-1">Origen (Ciudad)</label>
-                                        <input type="text" id="f-orig-city" value="" required>
+                                        <label for="f-from1" data-i18n="lbl_from">From</label>
+                                        <input type="text" id="f-from1" value="" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="f-dest-code">Destino (Código)</label>
-                                        <input type="text" id="f-dest-code" value="" required>
-                                        <label for="f-dest-city" class="mt-1">Destino (Ciudad)</label>
-                                        <input type="text" id="f-dest-city" value="" required>
+                                        <label flex-direction="column" for="f-to1" data-i18n="lbl_to">To</label>
+                                        <input type="text" id="f-to1" value="" required>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="f-time">Tiempo</label>
-                                        <input type="text" id="f-time" value="" required>
+                                        <label for="f-date1" data-i18n="lbl_date">Date</label>
+                                        <input type="text" id="f-date1" value="" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="f-flight">Vuelo</label>
-                                        <input type="text" id="f-flight" value="" required>
+                                        <label for="f-time1" data-i18n="lbl_time">Time</label>
+                                        <input type="text" id="f-time1" value="" required>
                                     </div>
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="f-aircraft">Avión</label>
-                                        <input type="text" id="f-aircraft" value="" required>
+
+                                <div id="flt2-wrapper" class="collapsed-section" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                                    <h3 style="margin:15px 0 10px; font-size:0.85rem;" data-i18n="lbl_flight2">Vuelo 2 (FLT 2) Opcional</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="f-carrier2" data-i18n="lbl_carrier">Carrier</label>
+                                            <input type="text" id="f-carrier2" value="MAA">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="f-flight2" data-i18n="lbl_flight_num">Vuelo</label>
+                                            <input type="text" id="f-flight2" value="">
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="f-miles">Millaje</label>
-                                        <input type="text" id="f-miles" value="" required>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="f-from2" data-i18n="lbl_from">From</label>
+                                            <input type="text" id="f-from2" value="">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="f-to2" data-i18n="lbl_to">To</label>
+                                            <input type="text" id="f-to2" value="">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="f-date2" data-i18n="lbl_date">Date</label>
+                                            <input type="text" id="f-date2" value="">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="f-time2" data-i18n="lbl_time">Time</label>
+                                            <input type="text" id="f-time2" value="">
+                                        </div>
                                     </div>
                                 </div>
                             </fieldset>
 
-                            <button type="submit" class="btn mt-2">Generar PDF Formal</button>
+                            <button type="submit" class="btn mt-2" data-i18n="btn_generate">Generar PDF Formal</button>
                             <div id="ticketResult" class="ticket-result" style="display: none;">
-                                <p>¡Boleto generado!</p>
-                                <a id="downloadLink" href="#" target="_blank" class="btn btn-secondary">Descargar PDF</a>
+                                <p data-i18n="msg_generated">¡Boleto generado!</p>
+                                <a id="downloadLink" href="#" target="_blank" class="btn btn-secondary" data-i18n="btn_download">Descargar PDF</a>
                             </div>
                             <div id="generateError" class="error-msg"></div>
                         </form>
@@ -192,124 +320,96 @@
                 <!-- ── PREVIEW COLUMN ── -->
                 <div class="preview-column">
                     <div class="preview-header">
-                        <h2>Previsualización en Vivo</h2>
+                        <h2 data-i18n="live_preview">Previsualización en Vivo</h2>
                         <span class="preview-badge">LIVE</span>
                     </div>
 
-                    <div class="ticket-canvas">
-                        <!-- Boarding Pass Header -->
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div class="ticket-dates">
-                                <span id="prev-date-out"></span> &#9654; <span id="prev-date-return"></span> APROBADO
-                                POR <span id="prev-approved"></span>
-                            </div>
-                        </div>
-                        <hr class="ticket-hr-bold">
+                    <div class="ticket-canvas" id="ticket-canvas-content">
+                        <div class="physical-ticket">
+                            <div class="pt-watermark">ISSUING FILE</div>
+                            <div class="pt-sidebar">ORIGINAL: ISSUING STATION CONTROL FILE</div>
+                            
+                            <div class="pt-main">
+                                <div class="pt-header">
+                                    <div class="pt-logo"><img src="/assets/img/logo.png" alt="mas"></div>
+                                    <div class="pt-title">TRIP AND BOARDING PASS</div>
+                                    <div class="pt-number" id="prev-ticket-id">000 0000 0</div>
+                                </div>
 
-                        <!-- Passenger Info + Logo -->
-                        <div class="ticket-passengers-logo">
-                            <div class="ticket-passengers">
-                                <div class="ticket-label">PREPARADO PARA</div>
-                                <div id="prev-passengers" class="ticket-pax-names"></div>
-                            </div>
-                            <div class="ticket-logo">
-                                <img src="/assets/img/logo.png" alt="Mas Logo">
-                            </div>
-                        </div>
-
-                        <!-- Guide Code -->
-                        <div class="ticket-res-code">
-                            <span class="ticket-label">CÓDIGO DE GUÍA</span>
-                            <span id="prev-guide" class="ticket-res-val"></span>
-                        </div>
-                        <hr class="ticket-hr">
-
-                        <!-- Departure Header -->
-                        <div class="ticket-departure-header">
-                            <span class="plane-icon">&#9992;</span> ÁREA O DEPTO: <strong id="prev-area"></strong>
-                            <span class="dep-notice">Por favor verifique el horario de vuelo antes de la salida</span>
-                        </div>
-
-                        <!-- Details Grid -->
-                        <div class="ticket-details-box">
-                            <!-- Left: Metadata -->
-                            <div class="tbox-gray">
-                                <div class="tbox-header">MAS CARGO</div>
-
-                                <div class="tlabel">Tipo de pasajero:</div>
-                                <div class="tval" id="prev-passenger-type" style="margin-bottom: 8px;"></div>
-
-                                <div class="tlabel">Prioridad:</div>
-                                <div class="tval" id="prev-priority"></div>
-
-                                <div class="tlabel">Estado:</div>
-                                <div class="tval" id="prev-status"></div>
-                            </div>
-
-                            <!-- Middle: Route -->
-                            <div class="tbox-white">
-                                <div class="tbox-route">
-                                    <!-- Origin -->
-                                    <div class="route-point">
-                                        <div class="route-code" id="prev-orig-code"></div>
-                                        <div class="route-city" id="prev-orig-city"></div>
-                                        <div class="tlabel mt-10">Tiempo:</div>
-                                        <div class="route-time" id="prev-time"></div>
+                                <div class="pt-body">
+                                    <div class="pt-left">
+                                        <div class="pt-row"><div class="pt-label">PASSENGER LAST NAME</div><div class="pt-val" id="prev-last-name"></div></div>
+                                        <div class="pt-row"><div class="pt-label">PASSENGER FIRST/GIVEN NAME</div><div class="pt-val" id="prev-first-name"></div></div>
+                                        <div class="pt-row"><div class="pt-label">REQUESTED BY</div><div class="pt-val" id="prev-req-by"></div></div>
+                                        <div class="pt-row"><div class="pt-label">TITTLE / DEPT</div><div class="pt-val" id="prev-dept"></div></div>
+                                        <div class="pt-row"><div class="pt-label">APPROVED BY</div><div class="pt-val" id="prev-approved"></div></div>
+                                        <div class="pt-row pt-sig-row">
+                                            <div class="pt-label">SIGNATURE</div>
+                                            <div class="pt-val" id="prev-signature"></div>
+                                            <div class="pt-on-file">
+                                                <span>ON FILE</span>
+                                                <div class="pt-checkbox" id="prev-on-file-cb"></div>
+                                            </div>
+                                        </div>
                                     </div>
-
-                                    <!-- Arrow with Plane -->
-                                    <div class="route-arrow">
-                                        <div class="route-arrow-plane">✈</div>
-                                        <div class="route-arrow-line"></div>
-                                    </div>
-
-                                    <!-- Destination -->
-                                    <div class="route-point">
-                                        <div class="route-code" id="prev-dest-code"></div>
-                                        <div class="route-city" id="prev-dest-city"></div>
-                                        <div class="tlabel mt-10">Vuelo:</div>
-                                        <div class="route-time" id="prev-flight"></div>
+                                    <div class="pt-right">
+                                        <div class="pt-pax-types">
+                                            <div class="pt-pax-item"><div class="pt-checkbox cb-type" id="prev-cb-cargo"></div> <span class="pt-cb-lbl">Cargo Attendants</span></div>
+                                            <div class="pt-pax-item"><div class="pt-checkbox cb-type" id="prev-cb-company"></div> <span class="pt-cb-lbl">Company Business</span></div>
+                                            <div class="pt-pax-item"><div class="pt-checkbox cb-type" id="prev-cb-customers"></div> <span class="pt-cb-lbl">Customers</span></div>
+                                            <div class="pt-pax-item"><div class="pt-checkbox cb-type" id="prev-cb-offduty"></div> <span class="pt-cb-lbl">Employee off Duty</span></div>
+                                            <div class="pt-pax-item"><div class="pt-checkbox cb-type" id="prev-cb-dependant"></div> <span class="pt-cb-lbl">Employee's Dependant</span></div>
+                                            <div class="pt-pax-item"><div class="pt-checkbox cb-type" id="prev-cb-others"></div> <span class="pt-cb-lbl">Others</span></div>
+                                            <div class="pt-pax-item"><div class="pt-checkbox cb-type" id="prev-cb-extracrew"></div> <span class="pt-cb-lbl">Extra Crew</span></div>
+                                        </div>
+                                        <div class="pt-priority">
+                                            <div class="pt-priority-lbl">PRIORITY</div>
+                                            <div class="pt-priority-box" id="prev-priority-box"></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Right: Transport -->
-                            <div class="tbox-right">
-                                <div class="tlabel">Transportadora:</div>
-                                <div class="tval mb-15" id="prev-transport">MAA</div>
-
-                                <div class="tlabel">Avión:</div>
-                                <div class="tval mb-15" id="prev-aircraft"></div>
-
-                                <div class="tlabel">Millaje: <span id="prev-miles"
-                                        style="color: black; font-size: 0.9rem;"></span></div>
-                            </div>
-                        </div>
-
-                        <!-- Passenger Table -->
-                        <table class="ticket-table">
-                            <thead>
-                                <tr>
-                                    <td>Nombre del pasajero:</td>
-                                    <td>Asientos:</td>
-                                    <td>Recibo(s) de billete(s) electrónico(s):</td>
-                                </tr>
-                            </thead>
-                            <tbody id="prev-pax-table">
-                                <!-- generated via JS -->
-                            </tbody>
-                        </table>
-
-                        <!-- Ticket Footer -->
-                        <div class="ticket-footer">
-                            <div class="ticket-audit">
-                                ID de Pase <strong id="prev-ticket-id">[PENDIENTE]</strong><br>
-                                Generado por: <strong id="prev-created-by">[PENDIENTE]</strong><br>
-                                Fecha/Hora (CDMX): <strong id="prev-created-at">[PENDIENTE]</strong><br>
-                                <span class="ticket-official-stamp">Documento oficial Mas Cargo</span>
-                            </div>
-                            <div class="ticket-qr-space" id="ticket-qr">
-                                <span class="qr-placeholder-text">QR</span>
+                                <div class="pt-footer">
+                                    <div class="pt-footer-left">
+                                        <div class="pt-label-sm">IF "ON FILE" ATTACH E-MAIL TO "ISSUING FILE" COPY</div>
+                                        <div class="pt-fee-box">FEE NO FARE</div>
+                                    </div>
+                                    <div class="pt-footer-right">
+                                        <table class="pt-flt-table">
+                                            <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>CARRIER</th>
+                                                    <th>FLIGHT</th>
+                                                    <th>FROM</th>
+                                                    <th>TO</th>
+                                                    <th>DATE</th>
+                                                    <th>TIME</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="pt-flt-label">FLT 1</td>
+                                                    <td id="prev-carrier1">MAA</td>
+                                                    <td id="prev-flight1"></td>
+                                                    <td id="prev-from1"></td>
+                                                    <td id="prev-to1"></td>
+                                                    <td id="prev-date1"></td>
+                                                    <td id="prev-time1"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pt-flt-label">FLT 2</td>
+                                                    <td id="prev-carrier2">MAA</td>
+                                                    <td id="prev-flight2"></td>
+                                                    <td id="prev-from2"></td>
+                                                    <td id="prev-to2"></td>
+                                                    <td id="prev-date2"></td>
+                                                    <td id="prev-time2"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -319,24 +419,68 @@
 
         <!-- ══════════ HISTORY TAB ══════════ -->
         <div class="tab-content" id="tab-history">
+            <!-- Advanced Filters Card -->
+            <div class="filters-card">
+                <h2 data-i18n="filters_title" class="filters-title">🔍 Filtros de Búsqueda</h2>
+                <div class="filters-grid">
+                    <div class="form-group">
+                        <label for="filter-pax" data-i18n="lbl_filter_pax">Nombre del Pasajero</label>
+                        <input type="text" id="filter-pax" placeholder="Buscar por pasajero...">
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-flight" data-i18n="lbl_filter_flight">Número de Vuelo</label>
+                        <input type="text" id="filter-flight" placeholder="Ej. 101, 202...">
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-carrier" data-i18n="lbl_filter_carrier">Aerolínea (Carrier)</label>
+                        <select id="filter-carrier">
+                            <option value="" data-i18n="opt_all">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-type" data-i18n="lbl_filter_type">Tipo de Pasajero</label>
+                        <select id="filter-type">
+                            <option value="" data-i18n="opt_all">Todos</option>
+                            <option value="Cargo Attendants" data-i18n="opt_cargo">Cargo Attendants</option>
+                            <option value="Company Business" data-i18n="opt_company">Company Business</option>
+                            <option value="Customers" data-i18n="opt_customers">Customers</option>
+                            <option value="Employee off Duty" data-i18n="opt_offduty">Employee off Duty</option>
+                            <option value="Employee's Dependant" data-i18n="opt_dependant">Employee's Dependant</option>
+                            <option value="Extra Crew" data-i18n="opt_extracrew">Extra Crew</option>
+                            <option value="Others" data-i18n="opt_others">Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-date" data-i18n="lbl_filter_date">Fecha de Vuelo</label>
+                        <input type="text" id="filter-date" placeholder="DD-MM-YYYY">
+                    </div>
+                    <div class="form-group btn-filter-clear-group">
+                        <button type="button" id="btnClearFilters" class="btn btn-secondary btn-sm" data-i18n="btn_clear_filters">Limpiar Filtros</button>
+                    </div>
+                </div>
+                <div class="filter-results-info">
+                    <span id="filter-results-count" data-i18n="msg_showing_all">Mostrando 0 boletos</span>
+                </div>
+            </div>
+
             <div class="history-card">
-                <h2>Boletos Generados</h2>
+                <h2 data-i18n="history_title">Boletos Generados</h2>
                 <div style="overflow-x: auto;">
                     <table class="history-table">
                         <thead>
                             <tr>
-                                <th>ID Pase</th>
-                                <th>Fecha Creado (CDMX)</th>
-                                <th>Generado Por</th>
-                                <th>Vuelo / Fecha</th>
-                                <th>Ruta</th>
-                                <th>Pasajeros</th>
-                                <th>Acción</th>
+                                <th data-i18n="th_id">ID Pase</th>
+                                <th data-i18n="th_date">Fecha Creado (CDMX)</th>
+                                <th data-i18n="th_by">Generado Por</th>
+                                <th data-i18n="th_flight">Vuelo / Fecha</th>
+                                <th data-i18n="th_route">Ruta</th>
+                                <th data-i18n="th_pax">Pasajeros</th>
+                                <th data-i18n="th_action">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
                             <tr>
-                                <td colspan="7" style="text-align:center;">Cargando historial...</td>
+                                <td colspan="7" style="text-align:center;" data-i18n="msg_loading_hist">Cargando historial...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -350,21 +494,21 @@
                 <!-- FORM COLUMN -->
                 <div class="form-column">
                     <div class="card form-card" style="margin: 0; max-width: 100%;">
-                        <h2>👤 Crear Nuevo Usuario</h2>
+                        <h2 data-i18n="users_create_title">👤 Crear Nuevo Usuario</h2>
                         <form id="createUserForm">
                             <div class="form-group">
-                                <label for="u-name">Nombre Completo</label>
+                                <label for="u-name" data-i18n="lbl_u_name">Nombre Completo</label>
                                 <input type="text" id="u-name" required>
                             </div>
                             <div class="form-group">
-                                <label for="u-username">Nombre de Usuario</label>
+                                <label for="u-username" data-i18n="lbl_u_username">Nombre de Usuario</label>
                                 <input type="text" id="u-username" required>
                             </div>
                             <div class="form-group">
-                                <label for="u-email">Correo Electrónico</label>
+                                <label for="u-email" data-i18n="lbl_u_email">Correo Electrónico</label>
                                 <input type="email" id="u-email" required>
                             </div>
-                            <button type="submit" class="btn mt-2">Crear Usuario</button>
+                            <button type="submit" class="btn mt-2" data-i18n="btn_create_user">Crear Usuario</button>
                             <div id="createUserMsg" class="mt-2"></div>
                         </form>
                     </div>
@@ -373,21 +517,21 @@
                 <!-- TABLE COLUMN -->
                 <div class="preview-column">
                     <div class="history-card" style="margin: 0;">
-                        <h2>Usuarios Registrados</h2>
+                        <h2 data-i18n="users_list_title">Usuarios Registrados</h2>
                         <div style="overflow-x: auto;">
                             <table class="history-table">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Usuario / Correo</th>
-                                        <th>Rol</th>
-                                        <th>Acciones</th>
+                                        <th data-i18n="th_name">Nombre</th>
+                                        <th data-i18n="th_user_email">Usuario / Correo</th>
+                                        <th data-i18n="th_role">Rol</th>
+                                        <th data-i18n="th_actions">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="usersTableBody">
                                     <tr>
-                                        <td colspan="5" style="text-align:center;">Cargando usuarios...</td>
+                                        <td colspan="5" style="text-align:center;" data-i18n="msg_loading_users">Cargando usuarios...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -401,18 +545,18 @@
     <!-- ── PAYMENT MODAL ── -->
     <div id="paymentModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <h3>Confirma que el pago aduanal se ha realizado</h3>
+            <h3 data-i18n="modal_confirm_payment">Confirma que el pago aduanal se ha realizado</h3>
             <div class="modal-radio-group">
                 <label>
-                    <input type="radio" name="paymentStatus" value="pagado" checked> Pagado
+                    <input type="radio" name="paymentStatus" value="pagado" checked> <span data-i18n="modal_paid">Pagado</span>
                 </label>
                 <label>
-                    <input type="radio" name="paymentStatus" value="no"> No
+                    <input type="radio" name="paymentStatus" value="no"> <span data-i18n="modal_no">No</span>
                 </label>
             </div>
             <div class="modal-actions">
-                <button type="button" id="btnCancelPayment" class="btn btn-cancel">Cancelar</button>
-                <button type="button" id="btnConfirmPayment" class="btn">Confirmar</button>
+                <button type="button" id="btnCancelPayment" class="btn btn-cancel" data-i18n="btn_cancel">Cancelar</button>
+                <button type="button" id="btnConfirmPayment" class="btn" data-i18n="btn_confirm">Confirmar</button>
             </div>
         </div>
     </div>
@@ -440,23 +584,25 @@
 
         // LIVE PREVIEW LOGIC
         const inputs = [
-            { id: 'f-date1', prev: 'prev-date-out' },
-            { id: 'f-date2', prev: 'prev-date-return' },
+            { id: 'f-last-name', prev: 'prev-last-name' },
+            { id: 'f-first-name', prev: 'prev-first-name' },
+            { id: 'f-req-by', prev: 'prev-req-by' },
+            { id: 'f-area', prev: 'prev-dept' },
             { id: 'f-approved-by', prev: 'prev-approved' },
-            { id: 'f-guide', prev: 'prev-guide' },
-            { id: 'f-area', prev: 'prev-area' },
-            { id: 'f-transport', prev: 'prev-transport' },
-            { id: 'f-priority', prev: 'prev-priority' },
-            { id: 'f-status', prev: 'prev-status' },
-            { id: 'f-orig-code', prev: 'prev-orig-code' },
-            { id: 'f-orig-city', prev: 'prev-orig-city' },
-            { id: 'f-dest-code', prev: 'prev-dest-code' },
-            { id: 'f-dest-city', prev: 'prev-dest-city' },
-            { id: 'f-time', prev: 'prev-time' },
-            { id: 'f-flight', prev: 'prev-flight' },
-            { id: 'f-aircraft', prev: 'prev-aircraft' },
-            { id: 'f-miles', prev: 'prev-miles' },
-            { id: 'f-passenger-type', prev: 'prev-passenger-type' }
+            { id: 'f-signature', prev: 'prev-signature' },
+            { id: 'f-priority', prev: 'prev-priority-box' },
+            { id: 'f-carrier1', prev: 'prev-carrier1' },
+            { id: 'f-flight1', prev: 'prev-flight1' },
+            { id: 'f-from1', prev: 'prev-from1' },
+            { id: 'f-to1', prev: 'prev-to1' },
+            { id: 'f-date1', prev: 'prev-date1' },
+            { id: 'f-time1', prev: 'prev-time1' },
+            { id: 'f-carrier2', prev: 'prev-carrier2' },
+            { id: 'f-flight2', prev: 'prev-flight2' },
+            { id: 'f-from2', prev: 'prev-from2' },
+            { id: 'f-to2', prev: 'prev-to2' },
+            { id: 'f-date2', prev: 'prev-date2' },
+            { id: 'f-time2', prev: 'prev-time2' }
         ];
 
         inputs.forEach(mapping => {
@@ -467,51 +613,36 @@
             }
         });
 
-        const paxInput = document.getElementById('f-passengers');
-        const paxNames = document.getElementById('prev-passengers');
-        const paxTable = document.getElementById('prev-pax-table');
+        // Checkboxes mapping
+        document.getElementById('f-on-file').addEventListener('change', (e) => {
+            document.getElementById('prev-on-file-cb').innerHTML = e.target.checked ? 'X' : '';
+        });
 
-        function updatePassengers() {
-            const names = paxInput.value.split('\n').filter(n => n.trim() !== '');
-            paxNames.innerHTML = names.join('<br>');
-
-            paxTable.innerHTML = '';
-            let baseTicket = 1392163966934;
-            names.forEach((name, i) => {
-                paxTable.innerHTML += `
-                <tr>
-                    <td style="border-bottom: 1px solid #ccc; padding: 6px 0;">&raquo; ${name.toUpperCase()}</td>
-                    <td style="border-bottom: 1px solid #ccc; padding: 6px 0;">Sin asignar</td>
-                    <td style="border-bottom: 1px solid #ccc; padding: 6px 0; color: #555;">${baseTicket + i}</td>
-                </tr>`;
-            });
-        }
-
-        paxInput.addEventListener('input', updatePassengers);
-        updatePassengers(); // init
+        document.getElementById('f-passenger-type').addEventListener('change', (e) => {
+            // clear all
+            document.querySelectorAll('.cb-type').forEach(el => el.innerHTML = '');
+            const selected = e.target.value;
+            if (selected) {
+                document.getElementById('prev-' + selected).innerHTML = 'X';
+            }
+        });
 
         // SUBMIT FORM LOGIC
         document.getElementById('ticketForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            // Mostrar modal
             document.getElementById('paymentModal').style.display = 'flex';
         });
 
-        // Cancelar Modal
         document.getElementById('btnCancelPayment').addEventListener('click', () => {
             document.getElementById('paymentModal').style.display = 'none';
         });
 
-        // Confirmar Modal
         document.getElementById('btnConfirmPayment').addEventListener('click', async () => {
             const status = document.querySelector('input[name="paymentStatus"]:checked').value;
             
-            // Ocultar modal
             document.getElementById('paymentModal').style.display = 'none';
             
-            if (status === 'no') {
-                return; // Detener flujo, no generar boleto
-            }
+            if (status === 'no') return;
 
             const generateBtn = document.querySelector('button[type="submit"]');
             const resultDiv = document.getElementById('ticketResult');
@@ -519,29 +650,41 @@
             const downloadLink = document.getElementById('downloadLink');
 
             generateBtn.disabled = true;
-            generateBtn.textContent = 'Generando...';
             resultDiv.style.display = 'none';
             errorDiv.style.display = 'none';
 
+            // Adapt data for backend keeping compatibility where possible
+            const paxFullName = document.getElementById('f-first-name').value + ' ' + document.getElementById('f-last-name').value;
+            
+            const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === 'round-trip';
+
             const data = {
                 dateOut: document.getElementById('f-date1').value,
-                dateReturn: document.getElementById('f-date2').value,
+                dateReturn: isRoundTrip ? document.getElementById('f-date2').value : '',
                 approvedBy: document.getElementById('f-approved-by').value,
-                passengers: document.getElementById('f-passengers').value.split('\n').filter(n => n.trim() !== ''),
-                guideCode: document.getElementById('f-guide').value,
+                passengers: [paxFullName],
+                guideCode: 'N/A', // Deprecated in physical design
                 area: document.getElementById('f-area').value,
-                transportadora: document.getElementById('f-transport').value,
-                passengerType: document.getElementById('f-passenger-type').value,
+                transportadora: document.getElementById('f-carrier1').value,
+                passengerType: document.getElementById('f-passenger-type').options[document.getElementById('f-passenger-type').selectedIndex].text,
                 priority: document.getElementById('f-priority').value,
-                status: document.getElementById('f-status').value,
-                origCode: document.getElementById('f-orig-code').value,
-                origCity: document.getElementById('f-orig-city').value,
-                destCode: document.getElementById('f-dest-code').value,
-                destCity: document.getElementById('f-dest-city').value,
-                time: document.getElementById('f-time').value,
-                flight: document.getElementById('f-flight').value,
-                aircraft: document.getElementById('f-aircraft').value,
-                miles: document.getElementById('f-miles').value
+                status: 'OK', // Default
+                origCode: document.getElementById('f-from1').value,
+                origCity: '',
+                destCode: document.getElementById('f-to1').value,
+                destCity: '',
+                time: document.getElementById('f-time1').value,
+                flight: document.getElementById('f-flight1').value,
+                aircraft: '', // Deprecated
+                miles: '', // Deprecated
+                carrier2: isRoundTrip ? document.getElementById('f-carrier2').value : '',
+                flight2: isRoundTrip ? document.getElementById('f-flight2').value : '',
+                from2: isRoundTrip ? document.getElementById('f-from2').value : '',
+                to2: isRoundTrip ? document.getElementById('f-to2').value : '',
+                time2: isRoundTrip ? document.getElementById('f-time2').value : '',
+                requestedBy: document.getElementById('f-req-by').value,
+                signature: document.getElementById('f-signature').value,
+                onFile: document.getElementById('f-on-file').checked ? 1 : 0
             };
 
             try {
@@ -553,29 +696,27 @@
 
                 const result = await response.json();
                 if (result.success) {
+                    // Autosave inputs to localStorage
+                    localStorage.setItem('masair_last_req_by', document.getElementById('f-req-by').value);
+                    localStorage.setItem('masair_last_area', document.getElementById('f-area').value);
+                    localStorage.setItem('masair_last_approved_by', document.getElementById('f-approved-by').value);
 
-                    // Show ID and Audit fields on canvas
-                    document.getElementById('prev-ticket-id').textContent = result.ticketId;
-                    document.getElementById('prev-created-by').textContent = result.created_by_name;
-                    document.getElementById('prev-created-at').textContent = result.created_at_cdmx;
+                    // Refresh dashboard after a slight delay
+                    if (typeof loadDashboard === 'function') {
+                        setTimeout(loadDashboard, 1000);
+                    }
 
-                    // Generate QR Code
-                    const qrContainer = document.getElementById('ticket-qr');
-                    qrContainer.innerHTML = '';
-                    new QRCode(qrContainer, {
-                        text: window.location.origin + '/verify/' + result.ticketId,
-                        width: 80,
-                        height: 80,
-                        colorDark: '#005c42',
-                        colorLight: '#ffffff',
-                        correctLevel: QRCode.CorrectLevel.M
-                    });
+                    // Format Ticket ID to match physical example (e.g. 865 6389 0)
+                    // Let's pad and format the DB ID
+                    let formattedId = String(result.ticketId).padStart(8, '0');
+                    formattedId = formattedId.substring(0,3) + ' ' + formattedId.substring(3,7) + ' ' + formattedId.substring(7);
+                    
+                    document.getElementById('prev-ticket-id').textContent = formattedId;
 
-                    // Allow more time for layout to settle
                     setTimeout(() => {
                         const element = document.querySelector('.ticket-canvas');
                         const opt = {
-                            margin: 10,
+                            margin: 5,
                             filename: 'Boleto_' + result.ticketId + '.pdf',
                             image: { type: 'jpeg', quality: 0.98 },
                             html2canvas: {
@@ -592,26 +733,22 @@
                             .from(element)
                             .save()
                             .then(() => {
-                                // Update UI after success
                                 resultDiv.style.display = 'block';
                                 downloadLink.style.display = 'none';
                                 generateBtn.disabled = false;
-                                generateBtn.textContent = 'Generar Nuevo PDF';
                             });
-                    }, 1200);
+                    }, 500);
 
                 } else {
                     errorDiv.textContent = result.message || 'Error al generar boleto';
                     errorDiv.style.display = 'block';
                     generateBtn.disabled = false;
-                    generateBtn.textContent = 'Generar PDF Formal';
                 }
             } catch (err) {
                 console.error(err);
                 errorDiv.textContent = 'Error de conexión';
                 errorDiv.style.display = 'block';
                 generateBtn.disabled = false;
-                generateBtn.textContent = 'Generar PDF Formal';
             }
         });
     </script>

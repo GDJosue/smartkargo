@@ -49,7 +49,7 @@ class AuthController extends Controller {
             $message = "
                 <div style='font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; max-width: 500px;'>
                     <h2 style='color: #005c42;'>Acceso al Sistema</h2>
-                    <p>Has solicitado un código de acceso para el Generador de Boletos.</p>
+                    <p>Has solicitado un código de acceso para el Generador de Trip Pass.</p>
                     <div style='font-size: 24px; font-weight: bold; background: #f4f7f6; padding: 15px; text-align: center; border-radius: 8px; letter-spacing: 5px;'>
                         {$code}
                     </div>

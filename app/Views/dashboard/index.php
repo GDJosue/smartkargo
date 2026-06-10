@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mas Cargo | Generador de Boletos</title>
-    <meta name="description" content="Sistema de generación de boletos oficiales y pases de abordar — Mas Cargo Airlines">
+    <title>Mas Cargo | Generador de Trip Pass</title>
+    <meta name="description" content="Sistema de generación de Trip Pass y pases de abordar — Mas Cargo Airlines">
     <link rel="icon" href="/assets/img/cropped-site_logo-32x32.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,7 @@
     <!-- ── Dashboard Header ── -->
     <header class="dashboard-header">
         <img src="/assets/img/logo.png" alt="Mas Cargo Logo">
-        <h1 data-i18n="title">Generador de Boletos Oficiales</h1>
+        <h1 data-i18n="title">Generador de Trip Pass</h1>
         <div class="dashboard-header-actions">
             <button id="langToggle" class="btn btn-sm btn-secondary" style="margin-right:15px;">EN / <strong>ES</strong></button>
             <div class="user-badge" id="userBadge">Cargando...</div>
@@ -33,8 +33,8 @@
     <div class="tabs-container">
         <nav class="tabs-nav">
             <button class="tab-btn active" data-target="tab-dashboard" id="tabDashboardBtn" data-i18n="tab_dashboard">Dashboard</button>
-            <button class="tab-btn" data-target="tab-generate" data-i18n="tab_generate">Generar Boleto</button>
-            <button class="tab-btn" data-target="tab-history" id="loadHistoryBtn" data-i18n="tab_history">Historial de Boletos</button>
+            <button class="tab-btn" data-target="tab-generate" data-i18n="tab_generate">Generar Trip Pass</button>
+            <button class="tab-btn" data-target="tab-history" id="loadHistoryBtn" data-i18n="tab_history">Historial de Trip Pass</button>
             <button class="tab-btn admin-only" data-target="tab-users" id="loadUsersBtn" style="display: none;" data-i18n="tab_users">Gestión de Usuarios</button>
         </nav>
 
@@ -45,7 +45,7 @@
                 <div class="kpi-card">
                     <div class="kpi-icon">🎫</div>
                     <div class="kpi-content">
-                        <div class="kpi-label" data-i18n="kpi_total_tickets">Total Boletos Emitidos</div>
+                        <div class="kpi-label" data-i18n="kpi_total_tickets">Total Trip Pass Emitidos</div>
                         <div class="kpi-value" id="kpi-total-tickets">0</div>
                         <div class="kpi-subtext" data-i18n="kpi_total_tickets_sub">Histórico acumulado</div>
                     </div>
@@ -53,7 +53,7 @@
                 <div class="kpi-card">
                     <div class="kpi-icon">📅</div>
                     <div class="kpi-content">
-                        <div class="kpi-label" data-i18n="kpi_today_tickets">Boletos de Hoy</div>
+                        <div class="kpi-label" data-i18n="kpi_today_tickets">Trip Pass de Hoy</div>
                         <div class="kpi-value" id="kpi-today-tickets">0</div>
                         <div class="kpi-subtext" data-i18n="kpi_today_tickets_sub">Emitidos en CDMX</div>
                     </div>
@@ -138,15 +138,10 @@
                 <!-- ── FORM COLUMN ── -->
                 <div class="form-column">
                     <div class="card form-card" style="margin: 0; max-width: 100%;">
-                        <h2 data-i18n="flight_details_title">✈️ Detalles del Vuelo</h2>
+                        <h2 data-i18n="flight_details_title">✈️ Detalles del Trip Pass</h2>
                         <form id="ticketForm">
 
-                            <!-- Section: Passengers -->
                             <fieldset class="form-section">
-                                <div class="form-section-title">
-                                    <span class="section-icon">👥</span>
-                                    <span data-i18n="sec_passengers">Pasajero</span>
-                                </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="f-last-name" data-i18n="lbl_last_name">Apellidos (Last Name)</label>
@@ -213,7 +208,7 @@
                             <fieldset class="form-section">
                                 <div class="form-section-title">
                                     <span class="section-icon">🗺️</span>
-                                    <span data-i18n="sec_route">Rutas (Vuelos)</span>
+                                    <span data-i18n="sec_route">Rutas (Tramos)</span>
                                 </div>
 
                                 <!-- Presets and Toggle -->
@@ -227,20 +222,11 @@
                                 </div>
 
                                 <div class="form-group trip-type-group">
-                                    <label data-i18n="lbl_trip_type">Tipo de Viaje</label>
-                                    <div class="trip-type-toggle">
-                                        <label class="toggle-option active" id="lbl-trip-one-way">
-                                            <input type="radio" name="tripType" value="one-way" checked style="display:none;">
-                                            <span data-i18n="trip_one_way">Sencillo</span>
-                                        </label>
-                                        <label class="toggle-option" id="lbl-trip-round">
-                                            <input type="radio" name="tripType" value="round-trip" style="display:none;">
-                                            <span data-i18n="trip_round">Redondo</span>
-                                        </label>
-                                    </div>
+                                    <label data-i18n="lbl_trip_type">Tramos</label>
+                                    <p style="font-size:0.8rem; color:var(--text-muted); margin:0 0 5px;">Primer tramo es obligatorio. Puedes agregar hasta 2 tramos adicionales.</p>
                                 </div>
                                 
-                                <h3 style="margin-bottom:10px; font-size:0.85rem;" data-i18n="lbl_flight1">Vuelo 1 (FLT 1)</h3>
+                                <h3 style="margin-bottom:10px; font-size:0.85rem;" data-i18n="lbl_flight1">Primer Tramo (FLT 1) *</h3>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="f-carrier1" data-i18n="lbl_carrier">Carrier</label>
@@ -272,8 +258,16 @@
                                     </div>
                                 </div>
 
+                                <div class="tramo-toggle-container" style="margin: 10px 0;">
+                                    <button type="button" id="btnAddTramo2" class="btn btn-sm btn-secondary" data-i18n="btn_add_tramo2">+ Agregar Segundo Tramo</button>
+                                    <button type="button" id="btnAddTramo3" class="btn btn-sm btn-secondary" style="display:none;" data-i18n="btn_add_tramo3">+ Agregar Tercer Tramo</button>
+                                </div>
+
                                 <div id="flt2-wrapper" class="collapsed-section" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
-                                    <h3 style="margin:15px 0 10px; font-size:0.85rem;" data-i18n="lbl_flight2">Vuelo 2 (FLT 2) Opcional</h3>
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <h3 style="margin:15px 0 10px; font-size:0.85rem;" data-i18n="lbl_flight2">Segundo Tramo (FLT 2)</h3>
+                                        <button type="button" id="btnRemoveTramo2" class="btn btn-sm" style="background:#cc0000; font-size:0.7rem; padding:2px 8px;">✕ Quitar</button>
+                                    </div>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label for="f-carrier2" data-i18n="lbl_carrier">Carrier</label>
@@ -305,11 +299,48 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div id="flt3-wrapper" class="collapsed-section" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <h3 style="margin:15px 0 10px; font-size:0.85rem;" data-i18n="lbl_flight3">Tercer Tramo (FLT 3)</h3>
+                                        <button type="button" id="btnRemoveTramo3" class="btn btn-sm" style="background:#cc0000; font-size:0.7rem; padding:2px 8px;">✕ Quitar</button>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="f-carrier3" data-i18n="lbl_carrier">Carrier</label>
+                                            <input type="text" id="f-carrier3" value="MAA">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="f-flight3" data-i18n="lbl_flight_num">Vuelo</label>
+                                            <input type="text" id="f-flight3" value="">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="f-from3" data-i18n="lbl_from">From</label>
+                                            <input type="text" id="f-from3" value="">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="f-to3" data-i18n="lbl_to">To</label>
+                                            <input type="text" id="f-to3" value="">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="f-date3" data-i18n="lbl_date">Date</label>
+                                            <input type="text" id="f-date3" value="">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="f-time3" data-i18n="lbl_time">Time</label>
+                                            <input type="text" id="f-time3" value="">
+                                        </div>
+                                    </div>
+                                </div>
                             </fieldset>
 
-                            <button type="submit" class="btn mt-2" data-i18n="btn_generate">Generar PDF Formal</button>
+                            <button type="submit" class="btn mt-2" data-i18n="btn_generate">Generar Trip Pass PDF</button>
                             <div id="ticketResult" class="ticket-result" style="display: none;">
-                                <p data-i18n="msg_generated">¡Boleto generado!</p>
+                                <p data-i18n="msg_generated">¡Trip Pass generado!</p>
                                 <a id="downloadLink" href="#" target="_blank" class="btn btn-secondary" data-i18n="btn_download">Descargar PDF</a>
                             </div>
                             <div id="generateError" class="error-msg"></div>
@@ -373,6 +404,7 @@
                                     <div class="pt-footer-left">
                                         <div class="pt-label-sm">IF "ON FILE" ATTACH E-MAIL TO "ISSUING FILE" COPY</div>
                                         <div class="pt-fee-box">FEE NO FARE</div>
+                                        <div id="qr-code-container" style="display:flex; align-items:center; justify-content:center; padding:8px; min-height:80px;"></div>
                                     </div>
                                     <div class="pt-footer-right">
                                         <table class="pt-flt-table">
@@ -405,6 +437,15 @@
                                                     <td id="prev-to2"></td>
                                                     <td id="prev-date2"></td>
                                                     <td id="prev-time2"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pt-flt-label">FLT 3</td>
+                                                    <td id="prev-carrier3">MAA</td>
+                                                    <td id="prev-flight3"></td>
+                                                    <td id="prev-from3"></td>
+                                                    <td id="prev-to3"></td>
+                                                    <td id="prev-date3"></td>
+                                                    <td id="prev-time3"></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -459,12 +500,12 @@
                     </div>
                 </div>
                 <div class="filter-results-info">
-                    <span id="filter-results-count" data-i18n="msg_showing_all">Mostrando 0 boletos</span>
+                    <span id="filter-results-count" data-i18n="msg_showing_all">Mostrando 0 trip pass</span>
                 </div>
             </div>
 
             <div class="history-card">
-                <h2 data-i18n="history_title">Boletos Generados</h2>
+                <h2 data-i18n="history_title">Trip Pass Generados</h2>
                 <div style="overflow-x: auto;">
                     <table class="history-table">
                         <thead>
@@ -602,7 +643,13 @@
             { id: 'f-from2', prev: 'prev-from2' },
             { id: 'f-to2', prev: 'prev-to2' },
             { id: 'f-date2', prev: 'prev-date2' },
-            { id: 'f-time2', prev: 'prev-time2' }
+            { id: 'f-time2', prev: 'prev-time2' },
+            { id: 'f-carrier3', prev: 'prev-carrier3' },
+            { id: 'f-flight3', prev: 'prev-flight3' },
+            { id: 'f-from3', prev: 'prev-from3' },
+            { id: 'f-to3', prev: 'prev-to3' },
+            { id: 'f-date3', prev: 'prev-date3' },
+            { id: 'f-time3', prev: 'prev-time3' }
         ];
 
         inputs.forEach(mapping => {
@@ -656,11 +703,13 @@
             // Adapt data for backend keeping compatibility where possible
             const paxFullName = document.getElementById('f-first-name').value + ' ' + document.getElementById('f-last-name').value;
             
-            const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === 'round-trip';
+            // Tramos logic: check if tramo 2 and 3 have data
+            const hasTramo2 = document.getElementById('f-flight2').value.trim() !== '' || document.getElementById('f-from2').value.trim() !== '';
+            const hasTramo3 = document.getElementById('f-flight3').value.trim() !== '' || document.getElementById('f-from3').value.trim() !== '';
 
             const data = {
                 dateOut: document.getElementById('f-date1').value,
-                dateReturn: isRoundTrip ? document.getElementById('f-date2').value : '',
+                dateReturn: hasTramo2 ? document.getElementById('f-date2').value : '',
                 approvedBy: document.getElementById('f-approved-by').value,
                 passengers: [paxFullName],
                 guideCode: 'N/A', // Deprecated in physical design
@@ -677,11 +726,17 @@
                 flight: document.getElementById('f-flight1').value,
                 aircraft: '', // Deprecated
                 miles: '', // Deprecated
-                carrier2: isRoundTrip ? document.getElementById('f-carrier2').value : '',
-                flight2: isRoundTrip ? document.getElementById('f-flight2').value : '',
-                from2: isRoundTrip ? document.getElementById('f-from2').value : '',
-                to2: isRoundTrip ? document.getElementById('f-to2').value : '',
-                time2: isRoundTrip ? document.getElementById('f-time2').value : '',
+                carrier2: hasTramo2 ? document.getElementById('f-carrier2').value : '',
+                flight2: hasTramo2 ? document.getElementById('f-flight2').value : '',
+                from2: hasTramo2 ? document.getElementById('f-from2').value : '',
+                to2: hasTramo2 ? document.getElementById('f-to2').value : '',
+                time2: hasTramo2 ? document.getElementById('f-time2').value : '',
+                carrier3: hasTramo3 ? document.getElementById('f-carrier3').value : '',
+                flight3: hasTramo3 ? document.getElementById('f-flight3').value : '',
+                from3: hasTramo3 ? document.getElementById('f-from3').value : '',
+                to3: hasTramo3 ? document.getElementById('f-to3').value : '',
+                date3: hasTramo3 ? document.getElementById('f-date3').value : '',
+                time3: hasTramo3 ? document.getElementById('f-time3').value : '',
                 requestedBy: document.getElementById('f-req-by').value,
                 signature: document.getElementById('f-signature').value,
                 onFile: document.getElementById('f-on-file').checked ? 1 : 0
@@ -713,11 +768,23 @@
                     
                     document.getElementById('prev-ticket-id').textContent = formattedId;
 
+                    // Generate QR code with verify URL
+                    const qrContainer = document.getElementById('qr-code-container');
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, {
+                        text: result.verifyUrl,
+                        width: 70,
+                        height: 70,
+                        colorDark: '#1a5142',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+
                     setTimeout(() => {
                         const element = document.querySelector('.ticket-canvas');
                         const opt = {
                             margin: 5,
-                            filename: 'Boleto_' + result.ticketId + '.pdf',
+                            filename: 'TripPass_' + result.ticketId + '.pdf',
                             image: { type: 'jpeg', quality: 0.98 },
                             html2canvas: {
                                 scale: 2,
@@ -740,7 +807,7 @@
                     }, 500);
 
                 } else {
-                    errorDiv.textContent = result.message || 'Error al generar boleto';
+                    errorDiv.textContent = result.message || 'Error al generar trip pass';
                     errorDiv.style.display = 'block';
                     generateBtn.disabled = false;
                 }

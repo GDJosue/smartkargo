@@ -103,7 +103,7 @@ if (document.getElementById('loginForm')) {
 }
 
 // shared global logic for Masair
-console.log('Masair Ticketing System Loaded');
+console.log('Masair Trip Pass System Loaded');
 
 // Global state for history filtering and charts
 window.allTickets = [];
@@ -163,55 +163,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Trip type switch listeners
-    const tripTypeRadios = document.querySelectorAll('input[name="tripType"]');
-    tripTypeRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            document.querySelectorAll('.toggle-option').forEach(el => el.classList.remove('active'));
-            radio.closest('.toggle-option').classList.add('active');
+    // Tramo add/remove buttons logic
+    const btnAddTramo2 = document.getElementById('btnAddTramo2');
+    const btnAddTramo3 = document.getElementById('btnAddTramo3');
+    const btnRemoveTramo2 = document.getElementById('btnRemoveTramo2');
+    const btnRemoveTramo3 = document.getElementById('btnRemoveTramo3');
 
+    if (btnAddTramo2) {
+        btnAddTramo2.addEventListener('click', () => {
             const wrapper = document.getElementById('flt2-wrapper');
-            if (radio.value === 'round-trip') {
-                if (wrapper) wrapper.style.maxHeight = '500px';
-            } else {
-                if (wrapper) wrapper.style.maxHeight = '0';
-                
-                // Clear Flight 2 inputs
-                ['f-carrier2', 'f-flight2', 'f-from2', 'f-to2', 'f-date2', 'f-time2'].forEach(id => {
+            if (wrapper) wrapper.style.maxHeight = '500px';
+            btnAddTramo2.style.display = 'none';
+            if (btnAddTramo3) btnAddTramo3.style.display = 'inline-block';
+        });
+    }
+
+    if (btnAddTramo3) {
+        btnAddTramo3.addEventListener('click', () => {
+            const wrapper = document.getElementById('flt3-wrapper');
+            if (wrapper) wrapper.style.maxHeight = '500px';
+            btnAddTramo3.style.display = 'none';
+        });
+    }
+
+    if (btnRemoveTramo2) {
+        btnRemoveTramo2.addEventListener('click', () => {
+            const wrapper2 = document.getElementById('flt2-wrapper');
+            const wrapper3 = document.getElementById('flt3-wrapper');
+            // Remove tramo 3 first if open
+            if (wrapper3 && wrapper3.style.maxHeight !== '0px' && wrapper3.style.maxHeight !== '0') {
+                wrapper3.style.maxHeight = '0';
+                ['f-carrier3', 'f-flight3', 'f-from3', 'f-to3', 'f-date3', 'f-time3'].forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) {
-                        el.value = '';
-                        el.dispatchEvent(new Event('input'));
-                    }
+                    if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
                 });
             }
+            if (wrapper2) wrapper2.style.maxHeight = '0';
+            ['f-carrier2', 'f-flight2', 'f-from2', 'f-to2', 'f-date2', 'f-time2'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
+            });
+            if (btnAddTramo2) btnAddTramo2.style.display = 'inline-block';
+            if (btnAddTramo3) btnAddTramo3.style.display = 'none';
         });
-    });
+    }
 
-    // Manual click wrappers for radio labels
-    const oneWayLbl = document.getElementById('lbl-trip-one-way');
-    if (oneWayLbl) {
-        oneWayLbl.addEventListener('click', () => {
-            const rad = oneWayLbl.querySelector('input');
-            if (rad) {
-                rad.checked = true;
-                rad.dispatchEvent(new Event('change'));
-            }
+    if (btnRemoveTramo3) {
+        btnRemoveTramo3.addEventListener('click', () => {
+            const wrapper = document.getElementById('flt3-wrapper');
+            if (wrapper) wrapper.style.maxHeight = '0';
+            ['f-carrier3', 'f-flight3', 'f-from3', 'f-to3', 'f-date3', 'f-time3'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
+            });
+            if (btnAddTramo3) btnAddTramo3.style.display = 'inline-block';
         });
     }
-    const roundLbl = document.getElementById('lbl-trip-round');
-    if (roundLbl) {
-        roundLbl.addEventListener('click', () => {
-            const rad = roundLbl.querySelector('input');
-            if (rad) {
-                rad.checked = true;
-                rad.dispatchEvent(new Event('change'));
-            }
-        });
-    }
+
+
 
     // Auto-uppercase logic for carrier, flight, from, to
-    const upperFields = ['f-carrier1', 'f-flight1', 'f-from1', 'f-to1', 'f-carrier2', 'f-flight2', 'f-from2', 'f-to2'];
+    const upperFields = ['f-carrier1', 'f-flight1', 'f-from1', 'f-to1', 'f-carrier2', 'f-flight2', 'f-from2', 'f-to2', 'f-carrier3', 'f-flight3', 'f-from3', 'f-to3'];
     upperFields.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -416,7 +428,7 @@ function renderCharts(tickets) {
             data: {
                 labels: paxLabels,
                 datasets: [{
-                    label: 'Boletos',
+                    label: 'Trip Pass',
                     data: paxData,
                     backgroundColor: '#8cc63f',
                     borderRadius: 4
@@ -465,7 +477,7 @@ async function loadHistory() {
 
             applyFilters();
         } else {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No hay boletos generados aún.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No hay trip pass generados aún.</td></tr>';
         }
     } catch (err) {
         console.error('Error fetching history:', err);
@@ -545,13 +557,13 @@ function applyFilters() {
             tbody.appendChild(tr);
         });
     } else {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No hay boletos que coincidan con los filtros.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No hay trip pass que coincidan con los filtros.</td></tr>';
     }
 
     // Update count
     const countEl = document.getElementById('filter-results-count');
     if (countEl) {
-        countEl.textContent = `Mostrando ${filtered.length} de ${window.allTickets.length} boletos`;
+        countEl.textContent = `Mostrando ${filtered.length} de ${window.allTickets.length} trip pass`;
     }
 }
 
@@ -561,7 +573,7 @@ window.downloadTicketPDF = function(ticket) {
         const element = document.querySelector('.ticket-canvas');
         const opt = {
             margin: 5,
-            filename: 'Boleto_' + ticket.ticket_id + '.pdf',
+            filename: 'TripPass_' + ticket.ticket_id + '.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
                 scale: 2,
@@ -573,7 +585,7 @@ window.downloadTicketPDF = function(ticket) {
             jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(element).save();
-    }, 400);
+    }, 600);
 };
 
 window.loadTicketToForm = function(ticket) {
@@ -634,25 +646,31 @@ window.loadTicketToForm = function(ticket) {
     document.getElementById('f-date2').value = ticket.date_return || '';
     document.getElementById('f-time2').value = ticket.time2 || '';
 
-    // Toggle trip type UI based on Flight 2
+    // Toggle tramo UI based on Flight 2 & Flight 3
     if (ticket.carrier2 || ticket.flight2 || ticket.date_return) {
-        const roundRadio = document.querySelector('input[name="tripType"][value="round-trip"]');
-        if (roundRadio) {
-            roundRadio.checked = true;
-            document.getElementById('lbl-trip-round').classList.add('active');
-            document.getElementById('lbl-trip-one-way').classList.remove('active');
-            const wrapper = document.getElementById('flt2-wrapper');
-            if (wrapper) wrapper.style.maxHeight = '500px';
-        }
+        const wrapper = document.getElementById('flt2-wrapper');
+        if (wrapper) wrapper.style.maxHeight = '500px';
+        const btnAdd2 = document.getElementById('btnAddTramo2');
+        if (btnAdd2) btnAdd2.style.display = 'none';
+        const btnAdd3 = document.getElementById('btnAddTramo3');
+        if (btnAdd3) btnAdd3.style.display = 'inline-block';
     } else {
-        const oneWayRadio = document.querySelector('input[name="tripType"][value="one-way"]');
-        if (oneWayRadio) {
-            oneWayRadio.checked = true;
-            document.getElementById('lbl-trip-one-way').classList.add('active');
-            document.getElementById('lbl-trip-round').classList.remove('active');
-            const wrapper = document.getElementById('flt2-wrapper');
-            if (wrapper) wrapper.style.maxHeight = '0';
-        }
+        const wrapper = document.getElementById('flt2-wrapper');
+        if (wrapper) wrapper.style.maxHeight = '0';
+        const btnAdd2 = document.getElementById('btnAddTramo2');
+        if (btnAdd2) btnAdd2.style.display = 'inline-block';
+        const btnAdd3 = document.getElementById('btnAddTramo3');
+        if (btnAdd3) btnAdd3.style.display = 'none';
+    }
+
+    if (ticket.carrier3 || ticket.flight3) {
+        const wrapper = document.getElementById('flt3-wrapper');
+        if (wrapper) wrapper.style.maxHeight = '500px';
+        const btnAdd3 = document.getElementById('btnAddTramo3');
+        if (btnAdd3) btnAdd3.style.display = 'none';
+    } else {
+        const wrapper = document.getElementById('flt3-wrapper');
+        if (wrapper) wrapper.style.maxHeight = '0';
     }
 
     // Trigger input events to update the live preview
@@ -681,10 +699,27 @@ window.loadTicketToForm = function(ticket) {
     
     // Keep the old ticket ID and Audit Fields
     document.getElementById('prev-ticket-id').textContent = ticket.ticket_id;
+
+    // Generate QR code for this ticket's verify URL
+    const qrContainer = document.getElementById('qr-code-container');
+    if (qrContainer && typeof QRCode !== 'undefined') {
+        qrContainer.innerHTML = '';
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const verifyUrl = `${protocol}//${host}/verify/${ticket.ticket_id}`;
+        new QRCode(qrContainer, {
+            text: verifyUrl,
+            width: 70,
+            height: 70,
+            colorDark: '#1a5142',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    }
     
     // Warning or status
     const resultDiv = document.getElementById('ticketResult');
-    resultDiv.innerHTML = '<p style="color:var(--text-primary)">Boleto cargado del historial. Puedes volver a descargarlo.</p>';
+    resultDiv.innerHTML = '<p style="color:var(--text-primary)">Trip Pass cargado del historial. Puedes volver a descargarlo.</p>';
     resultDiv.style.display = 'block';
     
     // We scroll up to see it
@@ -819,13 +854,13 @@ window.toggleAdmin = async function(id, currentStatus) {
 // --- TRANSLATION LOGIC ---
 const translations = {
     es: {
-        title: "Generador de Boletos Oficiales",
+        title: "Generador de Trip Pass",
         logout: "Cerrar Sesión",
         tab_dashboard: "Dashboard",
-        tab_generate: "Generar Boleto",
-        tab_history: "Historial de Boletos",
+        tab_generate: "Generar Trip Pass",
+        tab_history: "Historial de Trip Pass",
         tab_users: "Gestión de Usuarios",
-        flight_details_title: "✈️ Detalles del Vuelo",
+        flight_details_title: "✈️ Detalles del Trip Pass",
         sec_passengers: "Pasajero",
         lbl_last_name: "Apellidos (Last Name)",
         lbl_first_name: "Nombre (First/Given Name)",
@@ -845,20 +880,21 @@ const translations = {
         opt_extracrew: "Extra Crew",
         opt_others: "Others",
         lbl_priority: "Prioridad",
-        sec_route: "Rutas (Vuelos)",
-        lbl_flight1: "Vuelo 1 (FLT 1)",
+        sec_route: "Rutas (Tramos)",
+        lbl_flight1: "Primer Tramo (FLT 1) *",
         lbl_carrier: "Carrier",
         lbl_flight_num: "Vuelo",
         lbl_from: "From",
         lbl_to: "To",
         lbl_date: "Date",
         lbl_time: "Time",
-        lbl_flight2: "Vuelo 2 (FLT 2) Opcional",
-        btn_generate: "Generar PDF Formal",
-        msg_generated: "¡Boleto generado!",
+        lbl_flight2: "Segundo Tramo (FLT 2)",
+        lbl_flight3: "Tercer Tramo (FLT 3)",
+        btn_generate: "Generar Trip Pass PDF",
+        msg_generated: "¡Trip Pass generado!",
         btn_download: "Descargar PDF",
         live_preview: "Previsualización en Vivo",
-        history_title: "Boletos Generados",
+        history_title: "Trip Pass Generados",
         th_id: "ID Pase",
         th_date: "Fecha Creado (CDMX)",
         th_by: "Generado Por",
@@ -885,9 +921,9 @@ const translations = {
         btn_confirm: "Confirmar",
         
         // New dashboard & UX translations
-        kpi_total_tickets: "Total Boletos Emitidos",
+        kpi_total_tickets: "Total Trip Pass Emitidos",
         kpi_total_tickets_sub: "Histórico acumulado",
-        kpi_today_tickets: "Boletos de Hoy",
+        kpi_today_tickets: "Trip Pass de Hoy",
         kpi_today_tickets_sub: "Emitidos en CDMX",
         kpi_active_users: "Operadores Activos",
         kpi_active_users_sub: "Usuarios con emisión",
@@ -907,19 +943,19 @@ const translations = {
         btn_clear_filters: "Limpiar Filtros",
         opt_all: "Todos",
         lbl_quick_presets: "Rutas Rápidas:",
-        lbl_trip_type: "Tipo de Viaje",
-        trip_one_way: "Sencillo",
-        trip_round: "Redondo",
+        lbl_trip_type: "Tramos",
+        btn_add_tramo2: "+ Agregar Segundo Tramo",
+        btn_add_tramo3: "+ Agregar Tercer Tramo",
         btn_load: "Cargar"
     },
     en: {
-        title: "Official Ticket Generator",
+        title: "Trip Pass Generator",
         logout: "Logout",
         tab_dashboard: "Dashboard",
-        tab_generate: "Generate Ticket",
-        tab_history: "Ticket History",
+        tab_generate: "Generate Trip Pass",
+        tab_history: "Trip Pass History",
         tab_users: "User Management",
-        flight_details_title: "✈️ Flight Details",
+        flight_details_title: "✈️ Trip Pass Details",
         sec_passengers: "Passenger",
         lbl_last_name: "Last Name",
         lbl_first_name: "First/Given Name",
@@ -939,20 +975,21 @@ const translations = {
         opt_extracrew: "Extra Crew",
         opt_others: "Others",
         lbl_priority: "Priority",
-        sec_route: "Route (Flights)",
-        lbl_flight1: "Flight 1 (FLT 1)",
+        sec_route: "Route (Legs)",
+        lbl_flight1: "First Leg (FLT 1) *",
         lbl_carrier: "Carrier",
         lbl_flight_num: "Flight",
         lbl_from: "From",
         lbl_to: "To",
         lbl_date: "Date",
         lbl_time: "Time",
-        lbl_flight2: "Flight 2 (FLT 2) Optional",
-        btn_generate: "Generate Formal PDF",
-        msg_generated: "Ticket generated!",
+        lbl_flight2: "Second Leg (FLT 2)",
+        lbl_flight3: "Third Leg (FLT 3)",
+        btn_generate: "Generate Trip Pass PDF",
+        msg_generated: "Trip Pass generated!",
         btn_download: "Download PDF",
         live_preview: "Live Preview",
-        history_title: "Generated Tickets",
+        history_title: "Generated Trip Pass",
         th_id: "Pass ID",
         th_date: "Date Created (CDMX)",
         th_by: "Generated By",
@@ -979,9 +1016,9 @@ const translations = {
         btn_confirm: "Confirm",
         
         // New dashboard & UX translations
-        kpi_total_tickets: "Total Tickets Issued",
+        kpi_total_tickets: "Total Trip Pass Issued",
         kpi_total_tickets_sub: "Accumulated history",
-        kpi_today_tickets: "Today's Tickets",
+        kpi_today_tickets: "Today's Trip Pass",
         kpi_today_tickets_sub: "Issued in CDMX",
         kpi_active_users: "Active Operators",
         kpi_active_users_sub: "Users with issuance",
@@ -1001,9 +1038,9 @@ const translations = {
         btn_clear_filters: "Clear Filters",
         opt_all: "All",
         lbl_quick_presets: "Quick Routes:",
-        lbl_trip_type: "Trip Type",
-        trip_one_way: "One Way",
-        trip_round: "Round Trip",
+        lbl_trip_type: "Legs",
+        btn_add_tramo2: "+ Add Second Leg",
+        btn_add_tramo3: "+ Add Third Leg",
         btn_load: "Load"
     }
 };

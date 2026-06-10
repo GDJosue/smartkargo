@@ -47,14 +47,14 @@ class TicketController extends Controller {
                 'created_by_name' => $data['created_by_name']
             ]);
         } else {
-            $this->json(['success' => false, 'message' => 'Error al guardar el boleto'], 500);
+            $this->json(['success' => false, 'message' => 'Error al guardar el trip pass'], 500);
         }
     }
 
     public function verify($id) {
         $ticket = $this->ticketModel->findByTicketId($id);
         if (!$ticket) {
-            $this->view('tickets/verify', ['error' => 'Boleto No Encontrado o Inválido']);
+            $this->view('tickets/verify', ['error' => 'Trip Pass No Encontrado o Inválido']);
             return;
         }
         $this->view('tickets/verify', ['ticket' => $ticket]);

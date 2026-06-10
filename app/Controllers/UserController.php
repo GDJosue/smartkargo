@@ -34,8 +34,16 @@ class UserController extends Controller {
             'username' => Security::cleanString($input['username'] ?? '', 50),
         ];
 
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL) || $data['full_name'] === '' || !preg_match('/^[a-zA-Z0-9._-]{3,50}$/', $data['username'])) {
+        if ($data['full_name'] === '' || $data['username'] === '' || $data['email'] === '') {
             $this->json(['success' => false, 'message' => 'Todos los campos son obligatorios'], 400);
+        }
+
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $this->json(['success' => false, 'message' => 'Correo electrónico inválido'], 400);
+        }
+
+        if (!preg_match('/^[\p{L}\p{N}._ -]{3,50}$/u', $data['username'])) {
+            $this->json(['success' => false, 'message' => 'El nombre de usuario debe tener 3 a 50 caracteres y solo usar letras, números, espacios, punto, guion o guion bajo'], 400);
         }
 
         if ($this->userModel->create($data)) {

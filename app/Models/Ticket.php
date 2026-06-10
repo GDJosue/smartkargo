@@ -21,37 +21,42 @@ class Ticket {
             requested_by, signature, on_file
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-        return $stmt->execute([
-            $data['ticket_id'],
-            $data['dateOut'] ?? '',
-            $data['dateReturn'] ?? '',
-            $data['approvedBy'] ?? '',
-            json_encode($data['passengers'] ?? []),
-            $data['guideCode'] ?? '',
-            $data['area'] ?? '',
-            $data['transportadora'] ?? '',
-            $data['priority'] ?? '',
-            $data['status'] ?? '',
-            $data['origCode'] ?? '',
-            $data['origCity'] ?? '',
-            $data['destCode'] ?? '',
-            $data['destCity'] ?? '',
-            $data['time'] ?? '',
-            $data['flight'] ?? '',
-            $data['aircraft'] ?? '',
-            $data['miles'] ?? '',
-            $data['created_by_name'] ?? '',
-            $data['created_at_cdmx'] ?? '',
-            $data['passengerType'] ?? '',
-            $data['carrier2'] ?? '',
-            $data['flight2'] ?? '',
-            $data['from2'] ?? '',
-            $data['to2'] ?? '',
-            $data['time2'] ?? '',
-            $data['requestedBy'] ?? '',
-            $data['signature'] ?? '',
-            $data['onFile'] ?? 0
-        ]);
+        try {
+            return $stmt->execute([
+                $data['ticket_id'],
+                $data['dateOut'] ?? '',
+                $data['dateReturn'] ?? '',
+                $data['approvedBy'] ?? '',
+                json_encode($data['passengers'] ?? []),
+                $data['guideCode'] ?? '',
+                $data['area'] ?? '',
+                $data['transportadora'] ?? '',
+                $data['priority'] ?? '',
+                $data['status'] ?? '',
+                $data['origCode'] ?? '',
+                $data['origCity'] ?? '',
+                $data['destCode'] ?? '',
+                $data['destCity'] ?? '',
+                $data['time'] ?? '',
+                $data['flight'] ?? '',
+                $data['aircraft'] ?? '',
+                $data['miles'] ?? '',
+                $data['created_by_name'] ?? '',
+                $data['created_at_cdmx'] ?? '',
+                $data['passengerType'] ?? '',
+                $data['carrier2'] ?? '',
+                $data['flight2'] ?? '',
+                $data['from2'] ?? '',
+                $data['to2'] ?? '',
+                $data['time2'] ?? '',
+                $data['requestedBy'] ?? '',
+                $data['signature'] ?? '',
+                $data['onFile'] ?? 0
+            ]);
+        } catch (\PDOException $e) {
+            error_log('Ticket create failed: ' . $e->getCode());
+            return false;
+        }
     }
 
     public function findByTicketId($ticketId) {

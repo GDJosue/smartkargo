@@ -1,5 +1,73 @@
 // main.js - Client-Side Logic for Masair Ticketing System
 
+(function hardenSameOriginFetch() {
+    const rawFetch = window.fetch.bind(window);
+    window.fetch = (resource, options = {}) => {
+        const method = String(options.method || 'GET').toUpperCase();
+        const url = typeof resource === 'string' ? new URL(resource, window.location.origin) : new URL(resource.url, window.location.origin);
+        if (url.origin === window.location.origin && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const headers = new Headers(options.headers || {});
+            if (token && !headers.has('X-CSRF-Token')) {
+                headers.set('X-CSRF-Token', token);
+            }
+            options = { ...options, headers };
+        }
+        return rawFetch(resource, options);
+    };
+})();
+
+function clearChildren(el) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+}
+
+function appendTextCell(row, value, options = {}) {
+    const cell = document.createElement('td');
+    if (options.small) {
+        const small = document.createElement('small');
+        small.textContent = value ?? '';
+        cell.appendChild(small);
+    } else if (options.strong) {
+        const strong = document.createElement('strong');
+        strong.textContent = value ?? '';
+        cell.appendChild(strong);
+    } else {
+        cell.textContent = value ?? '';
+    }
+    row.appendChild(cell);
+    return cell;
+}
+
+function appendTableMessage(tbody, colspan, message, color = '') {
+    clearChildren(tbody);
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = colspan;
+    td.style.textAlign = 'center';
+    if (color) td.style.color = color;
+    td.textContent = message;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+}
+
+function safePassengers(passengers) {
+    try {
+        const parsed = JSON.parse(passengers || '[]');
+        return Array.isArray(parsed) ? parsed.join(', ') : String(passengers || '');
+    } catch (e) {
+        return String(passengers || '');
+    }
+}
+
+function makeActionButton(label, classes, handler) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = classes;
+    button.textContent = label;
+    button.addEventListener('click', handler);
+    return button;
+}
+
 // Login Form Handling (OTP Two-Step)
 if (document.getElementById('loginForm')) {
     const loginForm = document.getElementById('loginForm');
@@ -335,28 +403,35 @@ async function loadDashboard() {
         if (recentBody) {
             const recent = tickets.slice(0, 5);
             if (recent.length > 0) {
-                recentBody.innerHTML = '';
+                clearChildren(recentBody);
                 recent.forEach(ticket => {
                     const tr = document.createElement('tr');
-                    const pax = JSON.parse(ticket.passengers || '[]');
-                    const paxStr = Array.isArray(pax) ? pax.join(', ') : ticket.passengers;
-                    
-                    tr.innerHTML = `
-                        <td><strong>${ticket.ticket_id}</strong></td>
-                        <td><small>${paxStr}</small></td>
-                        <td><span class="badge">${ticket.transportadora} ${ticket.flight}</span></td>
-                        <td>${ticket.orig_code} &rarr; ${ticket.dest_code}</td>
-                        <td>
-                            <div style="display:flex; gap:5px;">
-                                <button class="btn btn-sm" onclick='loadTicketToForm(${JSON.stringify(ticket).replace(/'/g, "&apos;")})' data-i18n="btn_load">Cargar</button>
-                                <button class="btn btn-sm btn-secondary" onclick='downloadTicketPDF(${JSON.stringify(ticket).replace(/'/g, "&apos;")})'>PDF</button>
-                            </div>
-                        </td>
-                    `;
+                    const paxStr = safePassengers(ticket.passengers);
+
+                    appendTextCell(tr, ticket.ticket_id, { strong: true });
+                    appendTextCell(tr, paxStr, { small: true });
+                    const flightCell = document.createElement('td');
+                    const badge = document.createElement('span');
+                    badge.className = 'badge';
+                    badge.textContent = `${ticket.transportadora || ''} ${ticket.flight || ''}`.trim();
+                    flightCell.appendChild(badge);
+                    tr.appendChild(flightCell);
+                    appendTextCell(tr, `${ticket.orig_code || ''} → ${ticket.dest_code || ''}`);
+
+                    const actionCell = document.createElement('td');
+                    const actionWrap = document.createElement('div');
+                    actionWrap.style.display = 'flex';
+                    actionWrap.style.gap = '5px';
+                    const loadBtn = makeActionButton('Cargar', 'btn btn-sm', () => loadTicketToForm(ticket));
+                    loadBtn.setAttribute('data-i18n', 'btn_load');
+                    actionWrap.appendChild(loadBtn);
+                    actionWrap.appendChild(makeActionButton('PDF', 'btn btn-sm btn-secondary', () => downloadTicketPDF(ticket)));
+                    actionCell.appendChild(actionWrap);
+                    tr.appendChild(actionCell);
                     recentBody.appendChild(tr);
                 });
             } else {
-                recentBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Sin actividad reciente.</td></tr>';
+                appendTableMessage(recentBody, 5, 'Sin actividad reciente.');
             }
         }
 
@@ -454,7 +529,7 @@ async function loadHistory() {
     const tbody = document.getElementById('historyTableBody');
     if (!tbody) return;
     
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Cargando historial...</td></tr>';
+    appendTableMessage(tbody, 7, 'Cargando historial...');
     
     try {
         const response = await fetch('/api/tickets');
@@ -481,7 +556,7 @@ async function loadHistory() {
         }
     } catch (err) {
         console.error('Error fetching history:', err);
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: red;">Error al cargar historial.</td></tr>';
+        appendTableMessage(tbody, 7, 'Error al cargar historial.', 'red');
     }
 }
 
@@ -523,41 +598,58 @@ function applyFilters() {
 
     // Populate table
     if (filtered.length > 0) {
-        tbody.innerHTML = '';
+        clearChildren(tbody);
         filtered.forEach(ticket => {
             const tr = document.createElement('tr');
-            const pax = JSON.parse(ticket.passengers || '[]');
-            const paxStr = Array.isArray(pax) ? pax.join(', ') : ticket.passengers;
-            
-            // Format routes FLT 1 (+ FLT 2 if exists)
-            let routeStr = `${ticket.orig_code} &rarr; ${ticket.dest_code}`;
-            if (ticket.from2 && ticket.to2) {
-                routeStr += `<br><small style="color:var(--text-muted);">${ticket.from2} &rarr; ${ticket.to2}</small>`;
-            }
+            const paxStr = safePassengers(ticket.passengers);
 
-            let flightStr = `<span class="badge">${ticket.transportadora} ${ticket.flight}</span>`;
+            appendTextCell(tr, ticket.ticket_id, { strong: true });
+            appendTextCell(tr, ticket.created_at_cdmx || new Date(ticket.created_at).toLocaleDateString());
+            appendTextCell(tr, ticket.created_by_name || 'Desconocido');
+
+            const flightCell = document.createElement('td');
+            const flightBadge = document.createElement('span');
+            flightBadge.className = 'badge';
+            flightBadge.textContent = `${ticket.transportadora || ''} ${ticket.flight || ''}`.trim();
+            flightCell.appendChild(flightBadge);
             if (ticket.carrier2 && ticket.flight2) {
-                flightStr += `<br><span class="badge" style="margin-top:2px; background:rgba(0, 92, 66, 0.08);">${ticket.carrier2} ${ticket.flight2}</span>`;
+                flightCell.appendChild(document.createElement('br'));
+                const flightBadge2 = document.createElement('span');
+                flightBadge2.className = 'badge';
+                flightBadge2.style.marginTop = '2px';
+                flightBadge2.style.background = 'rgba(0, 92, 66, 0.08)';
+                flightBadge2.textContent = `${ticket.carrier2} ${ticket.flight2}`.trim();
+                flightCell.appendChild(flightBadge2);
             }
+            tr.appendChild(flightCell);
 
-            tr.innerHTML = `
-                <td><strong>${ticket.ticket_id}</strong></td>
-                <td>${ticket.created_at_cdmx || new Date(ticket.created_at).toLocaleDateString()}</td>
-                <td>${ticket.created_by_name || 'Desconocido'}</td>
-                <td>${flightStr}</td>
-                <td>${routeStr}</td>
-                <td><small>${paxStr}</small></td>
-                <td>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn btn-sm" onclick='loadTicketToForm(${JSON.stringify(ticket).replace(/'/g, "&apos;")})' data-i18n="btn_load">Cargar</button>
-                        <button class="btn btn-sm btn-secondary" onclick='downloadTicketPDF(${JSON.stringify(ticket).replace(/'/g, "&apos;")})'>PDF</button>
-                    </div>
-                </td>
-            `;
+            const routeCell = document.createElement('td');
+            routeCell.appendChild(document.createTextNode(`${ticket.orig_code || ''} → ${ticket.dest_code || ''}`));
+            if (ticket.from2 && ticket.to2) {
+                routeCell.appendChild(document.createElement('br'));
+                const small = document.createElement('small');
+                small.style.color = 'var(--text-muted)';
+                small.textContent = `${ticket.from2} → ${ticket.to2}`;
+                routeCell.appendChild(small);
+            }
+            tr.appendChild(routeCell);
+
+            appendTextCell(tr, paxStr, { small: true });
+
+            const actionCell = document.createElement('td');
+            const actionWrap = document.createElement('div');
+            actionWrap.style.display = 'flex';
+            actionWrap.style.gap = '5px';
+            const loadBtn = makeActionButton('Cargar', 'btn btn-sm', () => loadTicketToForm(ticket));
+            loadBtn.setAttribute('data-i18n', 'btn_load');
+            actionWrap.appendChild(loadBtn);
+            actionWrap.appendChild(makeActionButton('PDF', 'btn btn-sm btn-secondary', () => downloadTicketPDF(ticket)));
+            actionCell.appendChild(actionWrap);
+            tr.appendChild(actionCell);
             tbody.appendChild(tr);
         });
     } else {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No hay trip pass que coincidan con los filtros.</td></tr>';
+        appendTableMessage(tbody, 7, 'No hay trip pass que coincidan con los filtros.');
     }
 
     // Update count
@@ -785,35 +877,55 @@ async function loadUsers() {
     const tbody = document.getElementById('usersTableBody');
     if (!tbody) return;
 
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando usuarios...</td></tr>';
+    appendTableMessage(tbody, 5, 'Cargando usuarios...');
 
     try {
         const response = await fetch('/api/users');
         const data = await response.json();
 
         if (data.success && data.users.length > 0) {
-            tbody.innerHTML = '';
+            clearChildren(tbody);
             data.users.forEach(u => {
                 const tr = document.createElement('tr');
-                const role = u.is_admin ? '<span style="color:var(--primary-color); font-weight:bold;">Admin</span>' : 'Usuario';
-                
-                tr.innerHTML = `
-                    <td>${u.id}</td>
-                    <td>${u.full_name}</td>
-                    <td>${u.username}<br><small>${u.email}</small></td>
-                    <td>${role}</td>
-                    <td>
-                        <button class="btn btn-sm" style="background:#005c42;" onclick="toggleAdmin(${u.id}, ${u.is_admin})">${u.is_admin ? 'Quitar Admin' : 'Hacer Admin'}</button>
-                        <button class="btn btn-sm" style="background:#cc0000;" onclick="deleteUser(${u.id})">Eliminar</button>
-                    </td>
-                `;
+                appendTextCell(tr, u.id);
+                appendTextCell(tr, u.full_name);
+
+                const userCell = document.createElement('td');
+                userCell.appendChild(document.createTextNode(u.username || ''));
+                userCell.appendChild(document.createElement('br'));
+                const email = document.createElement('small');
+                email.textContent = u.email || '';
+                userCell.appendChild(email);
+                tr.appendChild(userCell);
+
+                const roleCell = document.createElement('td');
+                if (u.is_admin) {
+                    const role = document.createElement('span');
+                    role.style.color = 'var(--primary-color)';
+                    role.style.fontWeight = 'bold';
+                    role.textContent = 'Admin';
+                    roleCell.appendChild(role);
+                } else {
+                    roleCell.textContent = 'Usuario';
+                }
+                tr.appendChild(roleCell);
+
+                const actionCell = document.createElement('td');
+                const adminBtn = makeActionButton(u.is_admin ? 'Quitar Admin' : 'Hacer Admin', 'btn btn-sm', () => toggleAdmin(Number(u.id), Boolean(Number(u.is_admin))));
+                adminBtn.style.background = '#005c42';
+                const deleteBtn = makeActionButton('Eliminar', 'btn btn-sm', () => deleteUser(Number(u.id)));
+                deleteBtn.style.background = '#cc0000';
+                actionCell.appendChild(adminBtn);
+                actionCell.appendChild(document.createTextNode(' '));
+                actionCell.appendChild(deleteBtn);
+                tr.appendChild(actionCell);
                 tbody.appendChild(tr);
             });
         } else {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay usuarios.</td></tr>';
+            appendTableMessage(tbody, 5, 'No hay usuarios.');
         }
     } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Error al cargar.</td></tr>';
+        appendTableMessage(tbody, 5, 'Error al cargar.', 'red');
     }
 }
 

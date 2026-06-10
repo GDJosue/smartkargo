@@ -26,7 +26,7 @@ class User {
 
     public function findById($id) {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt->execute([(int) $id]);
         return $stmt->fetch();
     }
 
@@ -67,22 +67,27 @@ class User {
         $isAdmin = ($res['count'] == 0) ? 1 : 0;
 
         $stmt = $this->db->prepare("INSERT INTO users (username, email, full_name, is_admin) VALUES (?, ?, ?, ?)");
-        return $stmt->execute([
-            $data['username'] ?? '',
-            $data['email'] ?? '',
-            $data['full_name'] ?? '',
-            $isAdmin
-        ]);
+        try {
+            return $stmt->execute([
+                $data['username'] ?? '',
+                $data['email'] ?? '',
+                $data['full_name'] ?? '',
+                $isAdmin
+            ]);
+        } catch (\PDOException $e) {
+            error_log('User create failed: ' . $e->getCode());
+            return false;
+        }
     }
 
     public function delete($id) {
         // Don't delete if it's the only admin? Let's just do a simple delete
         $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
-        return $stmt->execute([$id]);
+        return $stmt->execute([(int) $id]);
     }
 
     public function toggleAdmin($id, $isAdmin) {
         $stmt = $this->db->prepare("UPDATE users SET is_admin = ? WHERE id = ?");
-        return $stmt->execute([$isAdmin ? 1 : 0, $id]);
+        return $stmt->execute([$isAdmin ? 1 : 0, (int) $id]);
     }
 }

@@ -3,6 +3,10 @@
 require_once __DIR__ . '/config.php';
 
 use App\Core\Router;
+use App\Core\Security;
+
+Security::applyHeaders();
+Security::validateCsrfForUnsafeMethod();
 
 $router = new Router();
 

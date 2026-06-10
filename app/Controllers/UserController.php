@@ -3,22 +3,19 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Security;
 use App\Models\User;
 
 class UserController extends Controller {
     private $userModel;
 
     public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $this->userModel = new User();
     }
 
     private function requireAdmin() {
         if (!isset($_SESSION['userId']) || empty($_SESSION['isAdmin'])) {
             $this->json(['success' => false, 'message' => 'No autorizado. Permisos de administrador requeridos.'], 403);
-            exit;
         }
     }
 
@@ -30,48 +27,56 @@ class UserController extends Controller {
 
     public function create() {
         $this->requireAdmin();
-        $data = json_decode(file_get_contents('php://input'), true);
+        $input = Security::jsonInput(4096);
+        $data = [
+            'email' => Security::cleanEmail($input['email'] ?? ''),
+            'full_name' => Security::cleanString($input['full_name'] ?? '', 100),
+            'username' => Security::cleanString($input['username'] ?? '', 50),
+        ];
 
-        if (empty($data['email']) || empty($data['full_name']) || empty($data['username'])) {
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL) || $data['full_name'] === '' || !preg_match('/^[a-zA-Z0-9._-]{3,50}$/', $data['username'])) {
             $this->json(['success' => false, 'message' => 'Todos los campos son obligatorios'], 400);
-            return;
         }
 
         if ($this->userModel->create($data)) {
             $this->json(['success' => true, 'message' => 'Usuario creado']);
-        } else {
-            $this->json(['success' => false, 'message' => 'Error al crear usuario (quizá el correo o usuario ya existe)'], 500);
         }
+
+        $this->json(['success' => false, 'message' => 'Error al crear usuario (quizá el correo o usuario ya existe)'], 500);
     }
 
     public function delete($id) {
         $this->requireAdmin();
-        if ($id == $_SESSION['userId']) {
+        if (!ctype_digit((string) $id)) {
+            $this->json(['success' => false, 'message' => 'ID inválido'], 400);
+        }
+        if ((int) $id === (int) $_SESSION['userId']) {
             $this->json(['success' => false, 'message' => 'No puedes eliminarte a ti mismo'], 400);
-            return;
         }
 
-        if ($this->userModel->delete($id)) {
+        if ($this->userModel->delete((int) $id)) {
             $this->json(['success' => true, 'message' => 'Usuario eliminado']);
-        } else {
-            $this->json(['success' => false, 'message' => 'Error al eliminar'], 500);
         }
+
+        $this->json(['success' => false, 'message' => 'Error al eliminar'], 500);
     }
 
     public function toggleAdmin($id) {
         $this->requireAdmin();
-        if ($id == $_SESSION['userId']) {
+        if (!ctype_digit((string) $id)) {
+            $this->json(['success' => false, 'message' => 'ID inválido'], 400);
+        }
+        if ((int) $id === (int) $_SESSION['userId']) {
             $this->json(['success' => false, 'message' => 'No puedes cambiar tus propios permisos'], 400);
-            return;
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = Security::jsonInput(1024);
         $isAdmin = !empty($data['is_admin']);
 
-        if ($this->userModel->toggleAdmin($id, $isAdmin)) {
+        if ($this->userModel->toggleAdmin((int) $id, $isAdmin)) {
             $this->json(['success' => true, 'message' => 'Permisos actualizados']);
-        } else {
-            $this->json(['success' => false, 'message' => 'Error al actualizar permisos'], 500);
         }
+
+        $this->json(['success' => false, 'message' => 'Error al actualizar permisos'], 500);
     }
 }

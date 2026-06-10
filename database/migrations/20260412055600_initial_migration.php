@@ -44,9 +44,9 @@ final class InitialMigration extends AbstractMigration
                 ->addIndex(['ticket_id'], ['unique' => true])
                 ->create();
 
-        // Insert default admin user
-        // password_hash('admin123', PASSWORD_BCRYPT)
-        $this->execute('INSERT INTO users (username, password, full_name) VALUES ("admin", "$2y$10$AaGHA8acQVY3Y.krHnpZeO3SNSUNzDCk48Va68dPGYvBmuTkW.fei", "Administrador Mas Cargo")');
+        // Insert default admin user with a randomized, non-documented password hash.
+        // Access is handled by email OTP after the auth-system migration.
+        $this->execute('INSERT INTO users (username, password, full_name) VALUES ("admin", "$2y$10$hTlj3PJnYR02O46LcsLFHej1DCL/pS4PZV0obJWLIRrXtspLaejya", "Administrador Mas Cargo")');
     }
 
     public function down(): void

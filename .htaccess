@@ -1,21 +1,17 @@
 # Mas Cargo MVC Routing .htaccess
 
-# Disable directory listing
 Options -Indexes
+DirectoryIndex index.php
+ServerSignature Off
 
-# Security: Block access to sensitive files
-<FilesMatch "^(config\.php|database\.sql|composer\.json|package\.json|package-lock\.json|\.env|\.git.*)$">
-    order allow,deny
-    deny from all
-</FilesMatch>
-
-# Routing Engine
 RewriteEngine On
 RewriteBase /
 
-# Allow access to existing files and directories (assets like css, js, img)
+# Sensitive paths and project internals must look nonexistent.
+RewriteRule (^|/)(\.git|\.env|app|config|includes|database|storage|logs|vendor|node_modules)(/|$) - [R=404,L,NC]
+RewriteRule (^|/)(backup[^/]*|phpinfo\.php|config\.php|composer\.(json|lock)|package(-lock)?\.json|Dockerfile|docker-compose\.ya?ml|README\.md)$ - [R=404,L,NC]
+RewriteRule \.(sql|bak|zip|tar|tgz|gz|log|ini|env|yml|yaml|lock)$ - [R=404,L,NC]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# Route everything else to index.php
 RewriteRule ^(.*)$ index.php [L,QSA]

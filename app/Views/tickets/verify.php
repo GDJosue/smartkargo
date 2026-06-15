@@ -10,7 +10,7 @@
     <title>Verificación de Pase - Mas Cargo</title>
     <link rel="icon" href="/assets/img/cropped-site_logo-32x32.png" type="image/png">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f0f4f2; padding: 20px; display: flex; justify-content: center; }
+        body { font-family: 'Swiss721', 'Swiss 721', 'Swiss721 BT', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f0f4f2; padding: 20px; display: flex; justify-content: center; }
         .card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); max-width: 400px; width: 100%; text-align: center; }
         .valid { color: #005c42; font-size: 24px; font-weight: 800; margin: 20px 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .detail { text-align: left; margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 8px;}

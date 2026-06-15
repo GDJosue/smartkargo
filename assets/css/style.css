@@ -2,8 +2,18 @@
    MAS CARGO — Premium Design System
    ============================================= */
 
-/* ── Google Fonts Fallback ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+/* ── Brand Font ── */
+@font-face {
+    font-family: "Swiss721";
+    src: url("https://www.masair-web.darahi.site/assets/2438Swiss721-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --font-sans: 'Swiss721', 'Swiss 721', 'Swiss721 BT', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
 
 /* ── Design Tokens ── */
 :root {
@@ -76,7 +86,7 @@ html {
 }
 
 body {
-    font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--font-sans);
     background-color: var(--bg);
     color: var(--text-primary);
     min-height: 100vh;
@@ -144,7 +154,7 @@ body.login-body {
    ============================================= */
 
 h1 {
-    font-family: 'Outfit', 'Inter', sans-serif;
+    font-family: var(--font-sans);
     font-size: 1.8rem;
     font-weight: 800;
     background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -155,7 +165,7 @@ h1 {
 }
 
 h2 {
-    font-family: 'Outfit', 'Inter', sans-serif;
+    font-family: var(--font-sans);
     font-weight: 700;
     color: var(--text-primary);
     font-size: 1.15rem;
@@ -163,7 +173,7 @@ h2 {
 }
 
 h3 {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     font-size: 0.95rem;
     color: var(--text-secondary);
@@ -693,7 +703,7 @@ select {
 .ticket-canvas {
     background: var(--surface);
     padding: 28px;
-    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     color: #222;
     box-shadow: var(--shadow-xl);
     border-radius: var(--radius-md);
@@ -903,7 +913,7 @@ select {
     color: var(--text-primary);
     letter-spacing: 2px;
     line-height: 1.1;
-    font-family: 'Outfit', 'Inter', sans-serif;
+    font-family: var(--font-sans);
 }
 
 .route-city {
@@ -920,7 +930,7 @@ select {
     margin-bottom: 6px;
     font-weight: 700;
     color: var(--text-primary);
-    font-family: 'Outfit', 'Inter', sans-serif;
+    font-family: var(--font-sans);
 }
 
 .route-arrow {
@@ -1290,7 +1300,7 @@ select {
     max-width: 800px;
     background: #fff;
     color: #1a5142; /* dark green text */
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     padding: 20px 40px 20px 60px; /* space for side text */
     margin: 0 auto;
     overflow: hidden;
@@ -1585,7 +1595,7 @@ select {
     font-weight: 800;
     color: var(--text-primary);
     line-height: 1.2;
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-sans);
 }
 
 .kpi-subtext {

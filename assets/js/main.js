@@ -485,7 +485,7 @@ function renderCharts(tickets) {
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { boxWidth: 12, font: { family: 'Inter', size: 10 } }
+                        labels: { boxWidth: 12, font: { family: 'Swiss721, Swiss 721, Swiss721 BT, Helvetica Neue, Helvetica, Arial, sans-serif', size: 10 } }
                     }
                 }
             }
@@ -517,8 +517,8 @@ function renderCharts(tickets) {
                     legend: { display: false }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } },
-                    y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } }
+                    x: { grid: { display: false }, ticks: { font: { family: 'Swiss721, Swiss 721, Swiss721 BT, Helvetica Neue, Helvetica, Arial, sans-serif', size: 9 } } },
+                    y: { grid: { display: false }, ticks: { font: { family: 'Swiss721, Swiss 721, Swiss721 BT, Helvetica Neue, Helvetica, Arial, sans-serif', size: 9 } } }
                 }
             }
         });
